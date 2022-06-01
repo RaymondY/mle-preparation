@@ -2,7 +2,7 @@
 
 ## Priority for now
 1. coding
-   * LeetCode
+   * [LeetCode](./coding/leetcode_record.md)
 2. ml_knowledge
    * BISHOP, Pattern Recognition and Machine Learning
 3. statistics & ml_design
