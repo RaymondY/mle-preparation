@@ -1,4 +1,4 @@
->   "@" - tech problem; "!" - cannot solve at the first time; "+" - some useful trick.
+>   "@@@" - tech problem; "!!!" - cannot solve at the first time; "+++" - some useful trick.
 
 ## 05.31
 
@@ -112,7 +112,7 @@
 
 
 
-### @23. Merge k Sorted Lists
+### @@@ 23. Merge k Sorted Lists
 
 *   `queue.PriorityQueue` has the same $T(n), S(n)$ as `heapq` in python3 but it is synchronized.
 *   Time Complexity: $O(k*n)$ (it can be $O(nlogk)$ if we "Divide and Conquer ")
@@ -334,7 +334,229 @@
 
 ## 06.01
 
+### 27. Remove Element
 
+>   Similar
+
+*   Time Complexity: $O(n)$ 
+*   Space Complexity: $O(1)$
+
+### 283. Move Zeroes
+
+>   #27
+
+*   Time Complexity: $O(n)$ 
+
+*   Space Complexity: $O(1)$
+
+*   ```python
+    class Solution:
+        def moveZeroes(self, nums: List[int]) -> None:
+            """
+            Do not return anything, modify nums in-place instead.
+            """
+            slow = 0
+            for fast in range(len(nums)):
+                if nums[fast] != 0:
+                    nums[slow] = nums[fast]
+                    slow += 1
+            
+            while slow < len(nums):
+                nums[slow] = 0
+                slow += 1       
+            
+    ```
+
+### 1. Two Sum
+
+*   Traversal:
+    *   Time Complexity: $O(n^2)$ 
+    *   Space Complexity: $O(1)$
+    *   Runtime: 4657 ms
+*   Hash Set:
+    *   Time Complexity: $O(n)$ 
+    *   Space Complexity: $O(n)$
+    *   Runtime: 66 ms
+
+### 167. Two Sum II - Input Array Is **Sorted**
+
+>   Sorted -> Left & Right Pointers
+
+*   Time Complexity: $O(n)$ 
+*   Space Complexity: $O(1)$
+
+### 344. Reverse String
+
+*   Time Complexity: $O(n)$ 
+*   Space Complexity: $O(1)$
+
+### 5. Longest Palindromic Substring
+
+*   Time Complexity: $O(n^2)$ 
+*   Space Complexity: $O(1)$
+
+*   ```python
+    class Solution:
+        def get_palindormic(self, s: str, left: int, right: int):
+            while left >= 0 and right < len(s) and s[left] == s[right]:
+                left -= 1
+                right += 1
+            return left + 1, right - 1
+        
+        def longestPalindrome(self, s: str) -> str:
+            left = len(s)
+            right = 0
+            for i in range(len(s)):
+                odd_left, odd_right = self.get_palindormic(s, i, i)
+                even_left, even_right = self.get_palindormic(s, i, i+1)
+                if (odd_right - odd_left) > (right - left):
+                    left = odd_left
+                    right = odd_right
+                if (even_right - even_left) > (right - left):
+                    left = even_left
+                    right = even_right
+                    
+            return s[left:right+1]
+                
+    ```
+
+
+
+### !!! 76. Minimum Window Substring
+
+>   Sliding Window
+
+*   Time Complexity: $O(n)$ 
+*   Space Complexity: $O(1)$
+
+*   ```python
+    class Solution:
+        def minWindow(self, s: str, t: str) -> str:
+            target = {}
+            window = {}
+            for letter in t:
+                target[letter] = 1 if letter not in target else target[letter] + 1
+            
+            record_left = 0
+            record_size = len(s) + 1
+            
+            # when not_valid == 0 -> valid
+            not_valid = len(target)
+            
+            left = right = 0
+            
+            # [left, right)
+            while right < len(s):
+                # move right
+                right_letter = s[right]
+                # right is ready for the next check
+                right += 1
+                if right_letter in target:
+                    window[right_letter] = 1 if right_letter not in window else window[right_letter] + 1
+                    if window[right_letter] == target[right_letter]:
+                        not_valid -= 1
+                # move left
+                while not_valid == 0:
+                    left_letter = s[left]
+                    if left_letter in window:
+                        if window[left_letter] == target[left_letter]:
+                            if right - left < record_size:
+                                record_left = left
+                                record_size = right - left
+                            not_valid += 1
+                        window[left_letter] -= 1
+                    # left is ready for the next check
+                    left += 1
+            
+            return "" if record_size > len(s) else s[record_left: record_left+record_size]
+    
+    ```
+
+
+
+### 567. Permutation in String
+
+*   Time Complexity: $O(n)$
+*   Space Complexity: $O(1)$
+
+*   ```python
+    class Solution:
+        def checkInclusion(self, s1: str, s2: str) -> bool:
+            target = {}
+            window = {}
+            
+            for letter in s1:
+                target[letter] = 1 if letter not in target else target[letter] + 1
+            
+            # [left, right)
+            left = right = 0
+            valid = 0
+            
+            while right < len(s2):
+                r_letter = s2[right]
+                right += 1
+                if r_letter in target:
+                    window[r_letter] = 1 if r_letter not in window else window[r_letter] + 1
+                    if window[r_letter] == target[r_letter]:
+                        valid += 1
+                
+                while (right - left) >= len(s1):
+                    if valid == len(target):
+                        return True
+                    l_letter = s2[left]
+                    left += 1
+                    if l_letter in target:
+                        if window[l_letter] == target[l_letter]:
+                            valid -= 1
+                        window[l_letter] -= 1
+    
+            return False
+    
+    ```
+
+### 438. Find All Anagrams in a String
+
+>   Same as the last problem
+
+*   Time Complexity: $O(n)$
+*   Space Complexity: $O(1)$
+
+*   ```python
+    class Solution:
+        def findAnagrams(self, s: str, p: str) -> List[int]:
+            target = {}
+            window = {}
+            
+            for letter in p:
+                target[letter] = 1 if letter not in target else target[letter] + 1
+            
+            # [left, right)
+            left = right = 0
+            valid = 0
+            result = []
+            
+            while right < len(s):
+                r_letter = s[right]
+                right += 1
+                if r_letter in target:
+                    window[r_letter] = 1 if r_letter not in window else window[r_letter] + 1
+                    if window[r_letter] == target[r_letter]:
+                        valid += 1
+                
+                
+                if right - left== len(p):
+                    if valid == len(target):
+                        result.append(left)
+                    l_letter = s[left]
+                    left += 1
+                    if l_letter in window:
+                        if window[l_letter] == target[l_letter]:
+                            valid -= 1
+                        window[l_letter] -= 1
+                    
+            return result
+                    
+    ```
 
 
 
