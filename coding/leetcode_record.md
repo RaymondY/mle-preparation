@@ -560,5 +560,178 @@
 
 
 
+## 06.02
+
+### 3. Longest Substring Without Repeating Characters
+
+*   Time Complexity: $O(n)$
+
+*   Space Complexity: $O(1)$
+
+*   ```python
+    class Solution:
+        def lengthOfLongestSubstring(self, s: str) -> int:
+            window = {}
+            
+            # [left right)
+            left = right = 0
+            length = 0
+            
+            while right < len(s):
+                r_letter = s[right]
+                window[r_letter] = 1 if r_letter not in window else window[r_letter] + 1
+                while r_letter in window and window[r_letter] > 1:
+                    if (right - left) > length:
+                        length = right - left
+                    l_letter = s[left]
+                    left += 1
+                    window[l_letter] -= 1
+                    
+                right += 1
+                
+            if (right - left) > length:
+                    length = right - left
+                    
+            return length      
+    ```
+
+*   \* The left pointer can jump faster. (Still $O(n)$)
+
+
+
+### 704. Binary Search
+
+>   For sorted array.
+
+*   Time Complexity: $O(logn)$
+
+*   Space Complexity: $O(1)$
+
+*   ```python
+    class Solution:
+        def search(self, nums: List[int], target: int) -> int:
+            # SORTED
+            # To find one targer, we apply closed interval
+            left = 0
+            right = len(nums) - 1
+            while left <= right:
+                mid = left + ((right - left) >> 1)
+                if nums[mid] == target:
+                    return mid
+                elif nums[mid] < target:
+                    left = mid + 1
+                elif nums[mid] > target:
+                    right = mid - 1
+            return -1
+            
+    ```
+
+*   Details for BS:
+    *   `while` determines when it ends.
+    *   `left = mid + 1 or mid` (`right = mid - 1 or mid`) depend on the search interval.
+    *   Closed Interval or Open Interval?
+    *   `mid = left + ((right - left) >> 1)`: prevent int overflow.
+
+### !!!34. Find First and Last Position of Element in Sorted Array
+
+>   Remember to scale the interval when we find the target.
+>
+>   Search for left & right boundaries.
+
+*   Time Complexity: $O(logn)$
+
+*   Space Complexity: $O(1)$
+
+*   ```python
+    class Solution:
+        def searchRange(self, nums: List[int], target: int) -> List[int]:
+            # closed interval
+            
+            # search for left
+            left = 0
+            right = len(nums) - 1
+            
+            while left <= right:
+                mid = left + ((right - left) >> 1)
+                if nums[mid] == target:
+                    # scale the interval
+                    right = mid - 1
+                elif nums[mid] < target:
+                    left = mid + 1
+                elif nums[mid] > target:
+                    right = mid - 1
+            
+            if left >= len(nums) or nums[left] != target:
+                return [-1, -1]
+            
+            # the right index crosses the boundary here
+            target_left = left
+            
+            # search for right
+            left = 0
+            right = len(nums) - 1
+            
+            while left <= right:
+                mid = left + ((right - left) >> 1)
+                if nums[mid] == target:
+                    # scale the interval
+                    left = mid + 1
+                elif nums[mid] < target:
+                    left = mid + 1
+                elif nums[mid] > target:
+                    right = mid - 1
+            
+            # the left index crosses the boundary here
+            target_right = right
+            
+            return [target_left, target_right]
+    
+    ```
+
+
+
+### 875. Koko Eating Bananas
+
+>   Same as the regular one except for the scaling conditions
+
+*   Time Complexity: $O(nlogm)$ (*There are `n` piles of bananas*, `m` is the maximum value of piles.)
+
+*   Space Complexity: $O(1)$
+
+*   ```python
+    class Solution:
+        def convert_target(self, piles, k):
+            expected_h = 0
+            for pile in piles:
+                expected_h += pile // k if pile % k == 0 else pile // k + 1
+            return expected_h
+        
+        def minEatingSpeed(self, piles: List[int], h: int) -> int:
+            # find the left(min) boundary
+            # [left, right]
+            left = sum(piles) // h if sum(piles) % h == 0 else sum(piles) // h + 1
+            right = max(piles)
+            
+            while left <= right:
+                mid = left + ((right - left) >> 2)
+                expected_h = self.convert_target(piles, mid)
+                if expected_h == h:
+                    right = mid - 1
+                # Note the condition here is opposite to the regular one.
+                elif expected_h > h:
+                    left = mid + 1
+                elif expected_h < h:
+                    right = mid - 1
+            
+            return left
+            
+    ```
+
+
+
+## 06.03
+
+
+
 
 
