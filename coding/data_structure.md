@@ -7,3 +7,5 @@
     *   `left = mid + 1 or mid` (`right = mid - 1 or mid`) depend on the search interval.
     *   `mid = left + ((right - left) >> 1)`: prevent int overflow.
 *   PreSum
+*   *Monotonic Stack* (increasing or decreasing)
+*   Monotonic Queue

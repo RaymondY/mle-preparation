@@ -1,4 +1,4 @@
->   "@@@" - tech problem; "!!!" - cannot solve at the first time; "+++" - some useful trick.
+>   "@@@" - tech problem; "!!!" - cannot solve at the first time; "+++" - some useful trick; "///" - try later.
 
 ## 05.31
 
@@ -730,6 +730,278 @@
 
 
 ## 06.03
+
+### 206. Reverse Linked List
+
+*   Recursion
+
+    *   Time Complexity: $O(n)$
+
+    *   Space Complexity: $O(n)$
+
+    *   ```python
+        class Solution:
+            def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+                # recursion
+                if head == None or head.next == None:
+                    return head
+                
+                # the head of the reversed list
+                last = self.reverseList(head.next)
+                head.next.next = head
+                head.next = None
+                
+                return last
+            
+        ```
+
+*   Iteration
+
+    *   Time Complexity: $O(n)$
+
+    *   Space Complexity: $O(1)$
+
+    *   <img src="/Users/rraymondy/Desktop/mle-preparation/coding/leetcode_record.assets/image-20220603123344908.png" alt="image-20220603123344908" style="zoom: 25%;" />
+
+    *   ```python
+        class Solution:
+            def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+                
+                target = None
+                cur = head
+                
+                while cur != None:
+                    saved_node = cur.next
+                    cur.next = target
+                    target = cur
+                    cur = saved_node
+                    
+                return target
+        ```
+
+### 92. Reverse Linked List II
+
+>   Same as the last problem except for recording the left, right related nodes and connecting them later.
+
+*   Iteration
+
+    *   Time Complexity: $O(n)$
+
+    *   Space Complexity: $O(1)$
+
+    *   <img src="/Users/rraymondy/Desktop/mle-preparation/coding/leetcode_record.assets/image-20220603130232556.png" alt="image-20220603130232556" style="zoom:25%;" />
+
+    *   ```python
+        class Solution:
+            def reverseBetween(self, head: Optional[ListNode], left: int, right: int) -> Optional[ListNode]:
+                dummy = ListNode()
+                dummy.next = head
+                head = dummy
+                count = 0
+                
+                while count != left - 1:
+                    head = head.next
+                    count += 1
+                    
+                left_node = head
+                r_left_node = head.next
+                head = head.next
+                count += 1
+                
+                target = None
+                while count != right + 1:
+                    saved_node = head.next
+                    head.next = target
+                    target = head
+                    head = saved_node
+                    count += 1
+                    
+                right_node = head
+                r_right_node = target
+                
+                left_node.next = r_right_node
+                r_left_node.next = right_node
+                
+                return dummy.next
+        ```
+
+    *   
+
+*   !!!Recursion
+
+    *   Time Complexity: $O(n)$
+
+    *   Space Complexity: $O(n)$
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.saved_node = None
+            
+            def reverse_pre_n(self, head: Optional[ListNode], n: int):
+                if n == 1:
+                    self.saved_node = head.next
+                    return head
+        
+                # the head of the reversed list
+                last = self.reverse_pre_n(head.next, n-1)
+                
+                head.next.next = head
+                head.next = self.saved_node
+                return last
+                
+            def reverseBetween(self, head: Optional[ListNode], left: int, right: int) -> Optional[ListNode]:
+                if left == 1:
+                    return self.reverse_pre_n(head, right - left + 1)
+                head.next = self.reverseBetween(head.next, left - 1, right - 1)
+                return head
+                
+        ```
+
+### 20. Valid Parentheses
+
+>   Stack
+
+*   Time Complexity:$O(n)$
+*   Space Complexity: $O(n)$
+
+*   ```python
+    class Solution:
+        def isValid(self, s: str) -> bool:
+            stack = []
+            match = {'(': ')', '{': '}', '[': ']'}
+            
+            for letter in s:
+                if letter in match:
+                    stack.append(letter)
+                elif len(stack) == 0 or match[stack.pop()] != letter:
+                    return False
+            
+            return len(stack) == 0
+           
+    ```
+
+### 921. Minimum Add to Make Parentheses Valid
+
+>   Stack
+
+*   Time Complexity:$O(n)$
+
+*   Space Complexity: $O(1)$
+
+*   Actually, "left" is a hidden stack.
+
+*   ```python
+    class Solution:
+        def minAddToMakeValid(self, s: str) -> int:
+            left = right = 0
+            stack = []
+            for letter in s:
+                if letter == '(':
+                    left += 1
+                elif letter == ')' and left == 0:
+                    right += 1
+                elif letter == ')' and left != 0:
+                    left -= 1
+            return left + right
+    
+    ```
+
+*   !!! Left & right strategy is not universal. Request & need is better.
+
+*   Based on '(', *request* records the '(' we already inserted, and *need* records the num of ')' needed.
+
+*   ```python
+    class Solution:
+        def minAddToMakeValid(self, s: str) -> int:
+            request = need = 0
+            for letter in s:
+                if letter == '(':
+                    need += 1
+                elif letter == ')':
+                    need -= 1
+                    if need == -1:
+                        request += 1
+                        need = 0
+            
+            return request + need
+        
+    ```
+
+*   
+
+### !!!1541. Minimum Insertions to Balance a Parentheses String
+
+*   Time Complexity:$O(n)$
+
+*   Space Complexity: $O(1)$
+
+*   ```python
+    class Solution:
+        def minInsertions(self, s: str) -> int:
+            request = need = 0
+            for letter in s:
+                if letter == '(':
+                    need += 2
+                    if need % 2 == 1:
+                        request += 1
+                        need -= 1
+                        
+                if letter == ')':
+                    need -= 1
+                    if need == -1:
+                        request += 1
+                        need = 1
+                        
+            return request + need
+            
+    ```
+
+### 496. Next Greater Element I
+
+>   Monotonic Stack
+
+*   Time Complexity: $O(n)$
+
+*   Space Complexity: $O(n)$
+
+*   ```python
+    class Solution:
+        def nextGreaterElement(self, nums1: List[int], nums2: List[int]) -> List[int]:
+            hash_result = {}
+            # Monotonic stack
+            stack = []
+            for i in range(1, len(nums2) + 1):
+                num = nums2[-i]
+                
+                # remove blocked number
+                while len(stack) != 0 and stack[-1] <= num:
+                    stack.pop()
+                    
+                hash_result[num] = -1 if len(stack) == 0 else stack[-1]
+                stack.append(num)
+    
+            return [hash_result[i] for i in nums1]
+            
+    ```
+
+### ///739. Daily Temperatures
+
+
+
+## 06.04
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
