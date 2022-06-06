@@ -9,3 +9,12 @@
 *   PreSum
 *   *Monotonic Stack* (increasing or decreasing)
 *   Monotonic Queue
+
+    *   ```python
+        class MonotonicQueue:
+            def push():
+            def pop():
+            def max/min():
+        ```
+
+    *   

@@ -761,7 +761,7 @@
 
     *   Space Complexity: $O(1)$
 
-    *   <img src="/Users/rraymondy/Desktop/mle-preparation/coding/leetcode_record.assets/image-20220603123344908.png" alt="image-20220603123344908" style="zoom: 25%;" />
+    *   <img src="leetcode_record.assets/image-20220603123344908.png" alt="image-20220603123344908" style="zoom: 25%;" />
 
     *   ```python
         class Solution:
@@ -789,7 +789,9 @@
 
     *   Space Complexity: $O(1)$
 
-    *   <img src="/Users/rraymondy/Desktop/mle-preparation/coding/leetcode_record.assets/image-20220603130232556.png" alt="image-20220603130232556" style="zoom:25%;" />
+    *   <img src="leetcode_record.assets/image-20220603130232556.png" alt="image-20220603130232556" style="zoom:25%;" />
+
+    *   
 
     *   ```python
         class Solution:
@@ -989,9 +991,57 @@
 
 
 
-## 06.04
+## 06.05
 
+### @@@239. Sliding Window Maximum
 
+>   Monotonic Queue
+
+>   `Queue.Queue` and `collections.deque` serve different purposes. Queue.Queue is intended for allowing different threads to communicate using queued messages/data, whereas `collections.deque` is simply intended as a datastructure. That's why `Queue.Queue` has methods like `put_nowait()`, `get_nowait()`, and `join()`, whereas `collections.deque` doesn't. `Queue.Queue` isn't intended to be used as a collection, which is why it lacks the likes of the `in` operator.
+>
+>   It boils down to this: if you have multiple threads and you want them to be able to communicate without the need for locks, you're looking for `Queue.Queue`; if you just want a queue or a double-ended queue as a datastructure, use `collections.deque`.
+>
+>   Finally, accessing and manipulating the internal deque of a `Queue.Queue` is playing with fire - you really don't want to be doing that. [python - Queue.Queue vs. collections.deque - Stack Overflow](https://stackoverflow.com/questions/717148/queue-queue-vs-collections-deque)
+
+*   Time Complexity: $O(n)$
+    *   Although the queue operation in the loop is not $O(1)$, each element `pop()` and `append()`  once in the worst situation.
+*   Space Complexity: $O(k)$
+
+*   ```python
+    from collections import deque
+    
+    class Solution:
+        def maxSlidingWindow(self, nums: List[int], k: int) -> List[int]:
+            mono_queue = deque()
+            result = []
+            
+            for i in range(k - 1):
+                cur = nums[i]
+                while mono_queue and mono_queue[-1] < cur:
+                    mono_queue.pop()
+                
+                mono_queue.append(cur)
+            
+            # when adding a new item, delete all smaller items in queue.
+            for i in range(k - 1, len(nums)):
+                cur = nums[i]
+                    
+                while mono_queue and mono_queue[-1] < cur:
+                    mono_queue.pop()    
+                mono_queue.append(cur)
+                
+                result.append(mono_queue[0])
+                
+                if mono_queue and mono_queue[0] == nums[i-k+1]:
+                    mono_queue.popleft()
+            
+            return result
+            
+    ```
+
+### ///316. Remove Duplicate Letters
+
+>   Kind of greedy problem.
 
 
 
