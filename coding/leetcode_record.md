@@ -1045,6 +1045,266 @@
 
 
 
+## 06.06
+
+### 226. Invert Binary Tree
+
+*   DFS & Recursion: Any order is okay, but I prefer postorder. It's like after you flipped left and right sub-trees, flip the left and right tree of root.
+
+    *   Time: $O(n)$
+
+    *   Space: $O(\log n)$ (I think)
+
+    *   ```python
+        class Solution:
+            def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+                if root == None:
+                    return None
+                
+                left = self.invertTree(root.left)
+                right = self.invertTree(root.right)
+                
+                root.left = right
+                root.right = left
+                
+                return root
+                
+        ```
+
+*   This can be solved by BFS and DFS & Iteration
+
+
+
+### 116. Populating Next Right Pointers in Each Node
+
+*   BFS with $O(1)$ Space.
+
+*   Time: $O(n)$ (We visit each node once.)
+
+*   ```python
+    class Solution:
+        def connect(self, root: 'Optional[Node]') -> 'Optional[Node]':
+            # We need the info from father nodes.
+            if not root:
+                return root
+            record = root
+            while record.left != None:
+                node = record
+                while node.next != None:
+                    node.left.next = node.right
+                    node.right.next = node.next.left
+                    node = node.next
+                node.left.next = node.right
+                
+                record = record.left
+            
+            return root
+        
+    ```
+
+*   !!! Recursion (I didn't come up with this at first, but I think there are overlaps in it. Also, resursion need extra space for stack.)
+
+    *   Time: Overlap occurs from level 4 to the end.
+
+    *   ```python
+        class Solution:
+            def traverse(self, node1, node2):
+                if node1 == None:
+                    return
+                node1.next = node2
+                self.traverse(node1.left, node1.right)
+                self.traverse(node1.right, node2.left)
+                self.traverse(node2.left, node2.right)
+                
+            def connect(self, root: 'Optional[Node]') -> 'Optional[Node]':
+                if not root:
+                    return root
+                
+                self.traverse(root.left, root.right)
+                
+                return root
+                
+        ```
+
+### 114. Flatten Binary Tree to Linked List
+
+*   Recursive:
+
+    *   Time: $O(n)$
+
+    *   Space: $O(\log n)$ (stack)
+
+    *   ```python
+        class Solution:
+            def flatten(self, root: Optional[TreeNode]) -> None:
+                """
+                Do not return anything, modify root in-place instead.
+                """
+                # Preorder
+                if not root:
+                    return
+                
+                self.flatten(root.left)
+                self.flatten(root.right)
+                
+                left = root.left
+                right = root.right
+                
+                root.left = None
+                root.right = left
+                
+                while root.right != None:
+                    root = root.right
+                
+                root.right = right
+        
+        ```
+
+*   !!!**Follow up:** Can you flatten the tree in-place (with `O(1)` extra space)?
+
+    *   set the right node behind the left's most right
+
+    *   ```python
+        class Solution:
+            def flatten(self, root: Optional[TreeNode]) -> None:
+                """
+                Do not return anything, modify root in-place instead.
+                """
+                while root:
+                    if root.left:
+                        node = root.left
+                        
+                        while node.right:
+                            node = node.right
+                        node.right = root.right
+        
+                        root.right = root.left
+                        root.left = None
+                    
+                    root = root.right
+                
+        ```
+
+### 654. Maximum Binary Tree
+
+>   Create tree: sub-problem
+
+*   Recursive
+
+    *   Time: $O(n^2)$ (`list.index()` -- $O(n)$)
+
+    *   Space: $O(n^2)$ (`list[start:end]` -- $O(n)$)
+
+    *   ```python
+        class Solution:
+            def constructMaximumBinaryTree(self, nums: List[int]) -> Optional[TreeNode]:
+                if not nums:
+                    return None
+                
+                node_value = max(nums)
+                node_index = nums.index(node_value)
+                
+                left = self.constructMaximumBinaryTree(nums[: node_index])
+                right = self.constructMaximumBinaryTree(nums[node_index + 1 :])
+                
+                return TreeNode(node_value, left, right)
+                
+        ```
+
+    *   
+
+### 105. Construct Binary Tree from Preorder and Inorder Traversal
+
+*   Recursive
+
+*   Time: $O(n^2)$ (`list.index()` -- $O(n)$)
+*   Space:  It better to write a helper function with left & right indexes to visit array. The slice array leads to extra space.
+
+*   ```python
+    class Solution:
+        def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
+            if not preorder:
+                return None
+            
+            node_value = preorder[0]
+            node_index = inorder.index(node_value)
+            
+            left_inorder = inorder[:node_index]
+            right_inorder = inorder[node_index + 1:]
+            
+            left_preorder = preorder[1:node_index+1]
+            right_preorder = preorder[node_index+1:]
+            
+            left = self.buildTree(left_preorder, left_inorder)
+            right = self.buildTree(right_preorder, right_inorder)
+            
+            return TreeNode(node_value, left, right)
+            
+    ```
+
+### 106. Construct Binary Tree from Inorder and Postorder Traversal
+
+*   This is much better than what we did in the last problem. However, `list.index()` is an $O(n)$ opt.
+
+*   ```python
+    class Solution:
+        def build(self, inorder, inorder_left, inorder_right, postorder, postorder_left, postorder_right):
+            if inorder_left > inorder_right:
+                return None
+            
+            node_value = postorder[postorder_right]
+            node_index = inorder.index(node_value)
+            
+            left = self.build(inorder, inorder_left, node_index - 1, postorder, postorder_left, postorder_left + node_index - inorder_left - 1)
+            right = self.build(inorder, node_index + 1, inorder_right, postorder, postorder_right - inorder_right + node_index, postorder_right - 1)
+            
+            return TreeNode(node_value, left, right)
+            
+        def buildTree(self, inorder: List[int], postorder: List[int]) -> Optional[TreeNode]:
+            num = len(inorder)
+            return self.build(inorder, 0, num-1, postorder, 0, num-1)
+        
+    ```
+
+*   !!! Here is a better one:
+
+*   >   "`inorder` and `postorder` consist of **unique** values." This leads us to apply a hashmap.
+
+*   !!! We must return right before left cuz it is postorder array.
+
+*   Time: $O(n)$ (`list.pop()` -- $O(1)$)
+
+*   Space: $O(n)$ (Hash map: we use $O(n)$ Extra space to avoid $O(n^2)$ time )
+
+*   ```python
+    class Solution:
+        def __init__(self):
+            self.hashmap = {}
+            self.inorder = []
+            self.postorder = []
+            
+        def build(self, start, end):
+            if start > end:
+                return None
+            node_value = self.postorder.pop()
+            node_index = self.hashmap[node_value]
+            
+            # right before left!
+            right = self.build(node_index + 1, end)
+            left = self.build(start, node_index - 1)
+            
+            return TreeNode(node_value, left, right)
+            
+        def buildTree(self, inorder: List[int], postorder: List[int]) -> Optional[TreeNode]:
+            self.inorder, self.postorder = inorder, postorder
+            self.hashmap = {}  
+            for index, value in enumerate(inorder):
+                self.hashmap[value] = index
+                
+            return self.build(0, len(self.inorder) - 1)
+            
+    ```
+
 
 
 

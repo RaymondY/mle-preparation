@@ -17,4 +17,21 @@
             def max/min():
         ```
 
-    *   
+
+
+# Binary Tree
+
+*   Outline
+
+    >   What we do for each node, and when?
+
+    *   Traverse -- Backtracking
+    *   Sub-problem -- DP
+        *   Create trees.
+
+*   Traverse:
+
+    *   Preorder: Know info from father nodes
+    *   Postorder: Know info from child nodes
+        *   To get info from sub-tree,  we need postorder one.
+
