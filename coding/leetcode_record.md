@@ -1305,7 +1305,230 @@
             
     ```
 
+## 06.07
 
+### 889. Construct Binary Tree from Preorder and Postorder Traversal
+
+*   ```python
+    class Solution:
+        def __init__(self):
+            self.post_hash = {}
+            self.preorder = []
+            self.postorder = []
+        
+        def build(self, pre_start, pre_end, post_start, post_end):
+            if pre_start > pre_end:
+                return None
+            
+            node_value = self.preorder[pre_start]
+            
+            if pre_start == pre_end:
+                return TreeNode(node_value)
+            
+            left_value = self.preorder[pre_start + 1]
+            left_size = self.post_hash[left_value] - post_start + 1
+            right_size = post_end - post_start - left_size
+            
+            left = self.build(pre_start + 1, pre_start + left_size, post_start, post_start + left_size - 1)
+            right = self.build(pre_end - right_size + 1, pre_end, post_end - right_size, post_end - 1)
+            
+            return TreeNode(node_value, left, right)
+            
+        def constructFromPrePost(self, preorder: List[int], postorder: List[int]) -> Optional[TreeNode]:
+            self.preorder = preorder
+            self.postorder = postorder
+            
+            for i, val in enumerate(postorder):
+                self.post_hash[val] = i
+            
+            num = len(self.preorder)
+            return self.build(0, num - 1, 0, num - 1)
+            
+    ```
+
+
+
+### !!! 297. Serialize and Deserialize Binary Tree
+
+*   Iterative
+
+    *   Time: $O(n)$
+
+    *   ```python
+        class Codec:
+            def serialize(self, root):
+                """Encodes a tree to a single string.
+                
+                :type root: TreeNode
+                :rtype: str
+                """
+                json = []
+                stack = []
+                stack.append(root)
+                while stack:
+                    node = stack.pop()
+                    if node:
+                        json.append(str(node.val))
+                        stack.append(node.right)
+                        stack.append(node.left)
+                    elif not node:
+                        json.append('#')
+                
+                return ','.join(json)
+                
+            def deserialize(self, data):
+                """Decodes your encoded data to tree.
+                
+                :type data: str
+                :rtype: TreeNode
+                """
+                if data == "#":
+                    return None
+                json = data.split(',')
+                stack = []
+                dummy = root = TreeNode(int(json[0]))
+                stack.append(root)
+                i = 1
+                direct = 'left'
+                while i < len(json):
+                    node_val = json[i]
+                    i += 1
+                    if node_val != '#':
+                        node = TreeNode(int(node_val))
+                        if direct == 'left':
+                            root.left = node
+                        elif direct == 'right':
+                            root.right = node
+                            direct = 'left'
+                        stack.append(node)
+                        root = node
+                    elif node_val == '#':
+                        if stack:
+                            root = stack.pop()
+                            direct = 'right'
+                            
+                return dummy
+        ```
+
+    *   
+
+*   Recursive
+
+    *   Time: $O(n)$
+
+    *   ```python
+        from collections import deque
+        
+        class Codec:        
+            def serialize_helper(self, root, json):
+                if not root:
+                    json.append('#')
+                    return
+                json.append(str(root.val))
+                self.serialize_helper(root.left, json)
+                self.serialize_helper(root.right, json)
+                
+            def serialize(self, root):
+                """Encodes a tree to a single string.
+                
+                :type root: TreeNode
+                :rtype: str
+                """
+                json = []
+                self.serialize_helper(root, json)
+                return ','.join(json)
+                
+            def deserialize_helper(self, json):
+                root_val = json.popleft()
+                if root_val == '#':
+                    return None
+                root = TreeNode(int(root_val))
+                root.left = self.deserialize_helper(json)
+                root.right = self.deserialize_helper(json)
+                
+                return root
+        
+            def deserialize(self, data):
+                """Decodes your encoded data to tree.
+                
+                :type data: str
+                :rtype: TreeNode
+                """
+                json = deque(data.split(','))
+                return self.deserialize_helper(json)
+                
+        ```
+
+    *   >   deque.popleft() is faster than list.pop(0), because the deque has been optimized to do popleft() approximately in O(1), while list.pop(0) takes O(n) .
+
+
+
+### +++ 652. Find Duplicate Subtrees
+
+>   Serialize sub tree in **postorder**!
+
+*   **Time: $O(n^2)$** (String concatenation in python takes $O(n)$? )
+
+*   ```python
+    lass Solution:
+        def __init__(self):
+            self.result = []
+            self.hashmap = {}
+            
+        def find_helper(self, root) -> string:
+            if not root:
+                return "#"
+            
+            left = self.find_helper(root.left)
+            right = self.find_helper(root.right)
+            
+            sub_tree = left + ',' + right + ',' + str(root.val)
+            
+            self.hashmap[sub_tree] = 1 if sub_tree not in self.hashmap else self.hashmap[sub_tree] + 1
+            
+            if self.hashmap[sub_tree] == 2:
+                self.result.append(root)
+                
+            return sub_tree
+                
+        def findDuplicateSubtrees(self, root: Optional[TreeNode]) -> List[Optional[TreeNode]]:
+            self.find_helper(root)
+            return self.result
+            
+    ```
+
+
+
+### (Daily) 88. Merge Sorted Array
+
+*   Time: $O(n)$ | Space: $O(1)$
+
+*   ```python
+    class Solution:
+        def merge(self, nums1: List[int], m: int, nums2: List[int], n: int) -> None:
+            """
+            Do not return anything, modify nums1 in-place instead.
+            """
+            pointer1 = m - 1
+            pointer2 = n - 1
+            
+            while pointer1 >= 0 and pointer2 >= 0:
+                if nums1[pointer1] >= nums2[pointer2]:
+                    nums1[pointer1 + pointer2 + 1] = nums1[pointer1]
+                    pointer1 -= 1
+                elif nums1[pointer1] < nums2[pointer2]:
+                    nums1[pointer1 + pointer2 + 1] = nums2[pointer2]
+                    pointer2 -= 1
+                    
+            while pointer2 >= 0:
+                nums1[pointer2] = nums2[pointer2]
+                pointer2 -= 1
+                
+    ```
+
+
+
+### 
 
 
 

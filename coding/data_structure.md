@@ -35,3 +35,12 @@
     *   Postorder: Know info from child nodes
         *   To get info from sub-tree,  we need postorder one.
 
+
+
+
+
+# Later
+
+*   Sort
+    *   Merge sort: 912
+
