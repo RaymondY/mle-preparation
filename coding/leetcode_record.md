@@ -390,7 +390,7 @@
 *   Time Complexity: $O(n)$ 
 *   Space Complexity: $O(1)$
 
-### 5. Longest Palindromic Substring
+### !!! 5. Longest Palindromic Substring
 
 *   Time Complexity: $O(n^2)$ 
 *   Space Complexity: $O(1)$
@@ -1526,9 +1526,332 @@
                 
     ```
 
+### 912. Sort an Array
+
+>   Mergesort
+
+*   Time: $O(n\log n)$
+
+*   ```python
+    class Solution:
+        def __init__(self):
+            self.temp = []
+            
+        def merge(self, nums, left, mid, right):
+            self.temp[left:right + 1] = nums[left:right + 1]
+            pointer1, pointer2 = left, mid + 1
+            index = left
+            while pointer1 <= mid and pointer2 <= right:
+                if self.temp[pointer1] <= self.temp[pointer2]:
+                    nums[index] = self.temp[pointer1]
+                    pointer1 += 1
+                elif self.temp[pointer1] > self.temp[pointer2]:
+                    nums[index] = self.temp[pointer2]
+                    pointer2 += 1
+                index += 1
+                
+            while pointer1 <= mid:
+                nums[index] = self.temp[pointer1]
+                pointer1 += 1
+                index += 1
+                
+            while pointer2 <= right:
+                nums[index] = self.temp[pointer2]
+                pointer2 += 1
+                index += 1
+                
+            
+        def merge_sort(self, nums, left, right):
+            if left == right:
+                return
+            mid = left + ((right - left) >> 1)
+            
+            self.merge_sort(nums, left, mid)
+            self.merge_sort(nums, mid + 1, right)
+            self.merge(nums, left, mid, right)
+    
+        def sortArray(self, nums: List[int]) -> List[int]:
+            # Merge sort
+            self.temp = [0] * len(nums)
+            self.merge_sort(nums, 0, len(nums) - 1)
+            return nums
+    
+    ```
+
+*   
 
 
-### 
+
+## 06.08
+
+### (Daily) 1332. Remove Palindromic Subsequences
+
+>   TRASH
+
+### /// !!! (too hard) 315. Count of Smaller Numbers After Self
+
+>   Mergesort
+
+*   
+
+### /// !!! (too hard) 327. Count of Range Sum
+
+
+
+### 230. Kth Smallest Element in a BST
+
+*   Traverse: inorder traverse of BST is sorted.
+
+    *   Time: $O(n)$
+
+    *   Space: $O(n)$ (include recursive stack)
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.count = 0
+                self.val = 0
+            
+            def traverse(self, root, k):
+                if not root:
+                    return
+                self.traverse(root.left, k)
+                self.count += 1
+                if self.count == k:
+                    self.val = root.val
+                    return
+                self.traverse(root.right, k)
+                
+            def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:
+                self.traverse(root, k)
+                return self.val
+                
+        ```
+
+*   Follow up
+
+*   >   **Follow up:** If the BST is modified often (i.e., we can do insert and delete operations) and you need to find the kth smallest frequently, how would you optimize?
+
+    *   If we know the size of trees for each root, we can achieve $O(\log n)$ time complexity.
+
+
+
+### 538. Convert BST to Greater Tree
+
+>   the prop of BST' inorder traverse
+
+*   Time: $O(n)$
+
+*   worst Space: $O(n)$ (include recursive stack)
+
+*   ```python
+    class Solution:
+        def __init__(self):
+            self.summary = 0
+            
+        def traverse(self, root):
+            if not root:
+                return
+            self.traverse(root.right)
+            
+            cur_val = root.val
+            root.val += self.summary
+            self.summary += cur_val
+            
+            self.traverse(root.left)
+            
+        def convertBST(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+            self.traverse(root)
+            return root
+        
+    ```
+
+### 98. Validate Binary Search Tree
+
+*   Time: $O(n)$
+
+*   worst Space: $O(n)$ (include recursive stack)
+
+*   !!! This solution is not universal for traversing a BST.
+
+*   ```python
+    class Solution:
+        def helper(self, root, min_root, max_root):
+            if not root:
+                return True
+            if min_root and min_root.val >= root.val or max_root and max_root.val <= root.val:
+                return False
+            
+            return self.helper(root.left, min_root, root) and self.helper(root.right, root, max_root)
+            
+        def isValidBST(self, root: Optional[TreeNode]) -> bool:
+            return self.helper(root, None, None)
+            
+    ```
+
+*   Here is universal traverse:
+
+    *   Iterative:
+
+    *   ```python
+        class Solution:
+            def isValidBST(self, root: Optional[TreeNode]) -> bool:
+                if not root:
+                    return True
+                
+                pre_root = None
+                stack = []
+                while root or stack:
+                    while root:
+                        stack.append(root)
+                        root = root.left
+                    root = stack.pop()
+                    if pre_root and pre_root.val >= root.val:
+                        return False
+                    pre_root = root
+                    root = root.right
+                    
+                return True
+        ```
+
+    *   Recursive
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.pre_root = None
+                self.is_valid = True
+                
+            def traverse(self, root):
+                if not root:
+                    return
+                
+                self.traverse(root.left)
+                
+                # early stop
+                if not self.is_valid:
+                    return
+                
+                if self.pre_root and self.pre_root.val >= root.val:
+                    self.is_valid = False
+                    return
+                self.pre_root = root
+                
+                self.traverse(root.right)
+                
+            def isValidBST(self, root: Optional[TreeNode]) -> bool:
+                self.traverse(root)
+                return self.is_valid
+            
+        ```
+
+    *   
+
+### 700. Search in a Binary Search Tree
+
+*   Time: $O(\log n)$
+
+*   Space: $O(1)$
+
+*   ```python
+    class Solution:
+        def searchBST(self, root: Optional[TreeNode], val: int) -> Optional[TreeNode]:
+            while root:
+                if root.val == val:
+                    return root
+                elif root.val < val:
+                    root = root.right
+                elif root.val > val:
+                    root = root.left
+                
+            return None
+            
+    ```
+
+*   Universal solution (recursive):
+
+*   ```python
+    class Solution:
+        def searchBST(self, root: Optional[TreeNode], val: int) -> Optional[TreeNode]:
+            if not root:
+                return None
+            
+            if root.val > val:
+                return self.searchBST(root.left, val)
+                
+            elif root.val < val:
+                return self.searchBST(root.right, val)
+                
+            return root
+            
+    ```
+
+
+
+### !!! 450. Delete Node in a BST
+
+*   !!! Recursive (brilliant idea for `if root.left and root.right:`)
+
+*   ```python
+    class Solution:
+        def get_min(self, root):
+            while root.left:
+                root = root.left
+            return root
+                
+            
+        def deleteNode(self, root: Optional[TreeNode], key: int) -> Optional[TreeNode]:
+            if not root:
+                return root
+            
+            if root.val == key:
+                if not root.left and not root.right:
+                    root = None
+                elif root.left and not root.right:
+                    root = root.left
+                elif not root.left and root.right:
+                    root = root.right
+                # we can find the biggest key in the left sub tree or the smallest one in the right sub tree
+                else:
+                    min_node = self.get_min(root.right)
+                    root.right = self.deleteNode(root.right, min_node.val)
+                    min_node.left = root.left
+                    min_node.right = root.right
+                    root = min_node
+                    
+            elif root.val < key:
+                root.right = self.deleteNode(root.right, key)
+                
+            elif root.val > key:
+                root.left = self.deleteNode(root.left, key)
+                
+            return root
+    
+    ```
+
+*   /// Iterative : 
+
+
+
+### !!! 701. Insert into a Binary Search Tree
+
+*   Time: $O(n)$
+*   Space: $O(h)$
+
+*   ```python
+    class Solution:
+        def insertIntoBST(self, root: Optional[TreeNode], val: int) -> Optional[TreeNode]:
+            if not root:
+                return TreeNode(val)
+            if root.val < val:
+                root.right = self.insertIntoBST(root.right, val)
+            elif root.val > val:
+                root.left = self.insertIntoBST(root.left, val)
+            return root
+        
+    ```
+
+*   /// Iterative:
 
 
 

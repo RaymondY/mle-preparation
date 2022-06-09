@@ -37,10 +37,33 @@
 
 
 
+# BST
 
+*   Framework
+
+    *   ```python
+        def BST(self, root, target)
+            if root.val == target:
+            	...
+            if root.val < target:
+            	self.BST(root.right, target)
+            if root.val > target:
+            	self.BST(root.left, target)
+                
+        ```
+
+    *   
+
+*   Operations
+    *   Delete: 450
+    *   Insert: 701
+    *   Search: 700
 
 # Later
 
 *   Sort
     *   Merge sort: 912
+*   Hard
+    *   315
+    *   327
 
