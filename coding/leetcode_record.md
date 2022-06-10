@@ -1528,7 +1528,7 @@
 
 ### 912. Sort an Array
 
->   Mergesort
+>   Mergesort here: Postorder traverse
 
 *   Time: $O(n\log n)$
 
@@ -1852,6 +1852,119 @@
     ```
 
 *   /// Iterative:
+
+
+
+## 06.09
+
+### 96. Unique Binary Search Trees
+
+>   DP; Catalan Number
+
+*   Time: $O(n^2)$
+
+*   Space: $O(n)$
+
+*   ```python
+    class Solution:
+        def numTrees(self, n: int) -> int:
+            memory = [0] * (n + 1)
+            memory[0] = 1
+            memory[1] = 1
+            
+            for num in range(2, n + 1):
+                for left in range(num):
+                    right = num - 1 - left
+                    memory[num] += memory[left] * memory[right]
+            
+            return memory[-1]
+            
+    ```
+
+### !!! 95. Unique Binary Search Trees II
+
+*   Time Space: IDK
+
+*   ```python
+    class Solution:
+        def build(self, start: int, end: int) -> List[Optional[TreeNode]]:
+            result = []
+            if start > end:
+                result.append(None)
+                return result
+            
+            for key in range(start, end + 1):
+                left_result = self.build(start, key - 1)
+                right_result = self.build(key + 1, end)
+                for left in left_result:
+                    for right in right_result:
+                        # must create root here instead of the outer loop
+                        root = TreeNode(key)
+                        root.left = left
+                        root.right = right
+                        result.append(root)
+            
+            return result
+            
+        def generateTrees(self, n: int) -> List[Optional[TreeNode]]:
+            return self.build(1, n)
+            
+    ```
+
+
+
+### !!! 1373. Maximum Sum BST in Binary Tree
+
+*   **Always remember we need left_max and right_min to valid BST.**
+
+*   Thought
+
+    *   We need results from left and right subtrees, so choose postorder traverse.
+    *   *Note that the root.val could be negative.*
+    *   For each node:
+        *   We need left_max, right_min; left_sum, right_sum; ~~left_max~~, right_max
+        *   So we return valid, min, max, sum
+
+*   Time: $O(n)$
+
+*   Space: $O(h)$
+
+*   ```python
+    INT_MAX = 4 * pow(10, 4) + 1
+    INT_MIN = -INT_MAX
+    
+    class Solution:
+        def __init__(self):
+            self.max_val = 0
+            
+        def traverse(self, root):
+            # We need left_max, right_min; left_sum, right_sum; ~~left_max~~, right_max
+            # So we return valid, min, max, sum
+            if not root:
+                return True, INT_MAX, INT_MIN, 0
+            left_valid, left_min, left_max, left_sum = self.traverse(root.left)
+            right_valid, right_min, right_max, right_sum = self.traverse(root.right)
+            # postorder here
+            
+            if left_valid and right_valid and left_max < root.val < right_min:
+                root_min = min(left_min, right_min, root.val)
+                root_max = max(left_max, right_max, root.val)
+                root_sum = left_sum + right_sum + root.val
+                self.max_val = max(self.max_val, root_sum)
+                return True, root_min, root_max, root_sum
+            else:
+                # won't be used anymore
+                return False, 0, 0, 0
+                
+        def maxSumBST(self, root: Optional[TreeNode]) -> int:
+            self.traverse(root)
+            return self.max_val
+        
+    ```
+
+### /// 912. Sort an Array
+
+>   Quick sort here: Preorder traverse / Create a BST
 
 
 

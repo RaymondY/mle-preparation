@@ -35,6 +35,8 @@
     *   Postorder: Know info from child nodes
         *   To get info from sub-tree,  we need postorder one.
 
+*   Merge sort: Postorder traverse
+
 
 
 # BST
@@ -58,11 +60,26 @@
     *   Delete: 450
     *   Insert: 701
     *   Search: 700
+*   Quick sort: Preorder traverse / **Create a BST**
+
+
+
+# Graph Theory
+
+
+
+
 
 # Later
 
 *   Sort
-    *   Merge sort: 912
+    *   Merge sort: Postorder traverse
+        *   Stable sort
+        *   Time: $O(n\log n)$
+    *   Quick sort: Preorder traverse / **Create a BST**
+        *   Unable sort.
+        *   Ideal: Time $O(n\log n)$; Space: $O(\log n)$
+        *   Worst: Time $O(n^2)$; Space: $O(n)$
 *   Hard
     *   315
     *   327
