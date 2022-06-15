@@ -68,6 +68,39 @@
 
 
 
+# Method of Exhaustion
+
+## DFS
+
+*   At each node, consider:
+
+    1.   Path: the choices made
+    2.   Selection list: avaibale choices
+    3.   End condition
+
+*   ```python
+    result = []
+    def backtrack(path, selection_list):
+        if end condition:
+            result.append(path)
+            return
+        for selection in selection_list:
+            make decision
+            
+           	backtrack(cur_path, cur_selection_list)
+            
+            withdraw decision
+    
+    ```
+
+    *    `make decision` is like preorder traverse (do sth before entering the node), and `withdraw decision` is like postorder traverse (do sth before leaving the node).
+
+## BFS
+
+
+
+
+
 
 
 # Later

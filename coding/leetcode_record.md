@@ -1968,6 +1968,255 @@
 
 
 
+## 06.10
+
+### 797. All Paths From Source to Target
+
+>   Traverse a graph
+
+*   Recursive:
+
+    *   Time: idk
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.result = []
+                
+            def traverse(self, graph, key, path):
+                n = len(graph)
+                # reach the end
+                if key == n - 1:
+                    self.result.append(path + [key])
+                    return
+                else:
+                    for target in graph[key]:
+                        self.traverse(graph, target, path + [key])
+                
+            def allPathsSourceTarget(self, graph: List[List[int]]) -> List[List[int]]:
+                # start from graph[0], to graph[n-1]
+                self.traverse(graph, 0, [])
+                
+                return self.result
+                
+        ```
+
+*   Iterative
+
+    *   Time: idk
+
+    *   ```python
+        class Solution:
+            def allPathsSourceTarget(self, graph: List[List[int]]) -> List[List[int]]:
+                stack = []
+                result = []
+                stack.append((0, [0]))
+                while stack:
+                    cur, path = stack.pop()
+                    if cur == len(graph) - 1:
+                        result.append(path)
+                    else:
+                        for target in graph[cur]:
+                            stack.append((target, path + [target]))
+                            
+                return result
+        ```
+
+
+
+### !!! 207. Course Schedule
+
+>   Detect cycle in graph
+
+*   DFS & Recursive:
+
+    *   Time: $O(V+E)$?
+
+    *   `self.on_path[cur] = False` is important
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.on_path = []
+                self.visited = []
+                self.has_cycle = False
+                
+            def traverse(self, graph, cur):
+                if self.on_path[cur]:
+                    self.has_cycle = True
+                
+                if self.visited[cur] or self.has_cycle:
+                    return
+                
+                self.visited[cur] = True
+                self.on_path[cur] = True
+                for target in graph[cur]:
+                    self.traverse(graph, target)
+                
+                self.on_path[cur] = False
+                
+            def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
+                # DFS
+                # Create adjacency list
+                self.on_path = [False] * numCourses
+                self.visited = [False] * numCourses
+                graph = [[] for i in range(numCourses)]
+                for target, prereq in prerequisites:
+                    graph[prereq].append(target)
+                    
+                # acyclic means True
+                for start in range(numCourses):
+                    self.traverse(graph, start)
+                    
+                return not self.has_cycle
+        
+        ```
+
+*   BFS:
+
+    *   Time: O(V+E)
+
+    *   ```python
+        from collections import deque
+        
+        class Solution:
+            def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
+                # BFS
+                # Create adjacency list
+                graph = [[] for i in range(numCourses)]
+                indegree = [0] * numCourses
+                for target, prereq in prerequisites:
+                    graph[prereq].append(target)
+                    indegree[target] += 1
+                    
+                queue = deque()
+                count = 0
+                
+                for start in range(numCourses):
+                    if indegree[start] == 0:
+                        queue.append(start)
+                
+                while queue:
+                    cur = queue.popleft()
+                    count += 1
+                    for target in graph[cur]:
+                        indegree[target] -= 1
+                        # next level
+                        if indegree[target] == 0:
+                            queue.append(target)
+                    
+                return count == numCourses
+        
+        ```
+
+
+
+## 06.14
+
+### 210. Course Schedule II
+
+>   Topological
+
+*   DFS
+
+*   Time: $O(V+E)$
+
+*   Space: $O(V)$
+
+*   ```python
+    # DFS
+    class Solution:
+        def __init__(self):
+            self.has_cycle = False
+            # size: numCourses; type: Boolean
+            # Cauze "in" is O(n) Opt for a list.
+            # Extra space for lower time complexity.
+            self.visited = []
+            self.on_path = []
+            self.topo = []
+        
+        def traverse(self, graph, cur):
+            if self.on_path[cur]:
+                self.has_cycle = True
+            
+            if self.visited[cur] or self.has_cycle:
+                return
+            
+            self.on_path[cur] = True
+            self.visited[cur] = True
+            
+            for target in graph[cur]:
+                self.traverse(graph, target)
+            
+            # postoder
+            self.topo.append(cur)
+            self.on_path[cur] = False
+            
+            
+        def findOrder(self, numCourses: int, prerequisites: List[List[int]]) -> List[int]:
+            self.visited = [False] * numCourses
+            self.on_path = [False] * numCourses
+            graph = [[] for i in range(numCourses)]
+            for target, prereq in prerequisites:
+                graph[prereq].append(target)
+            
+            for start in range(numCourses):
+                self.traverse(graph, start)
+            
+            if self.has_cycle:
+                return []
+            else:
+                return self.topo[::-1]
+    
+    ```
+
+*   BFS
+
+*   Time: $O(V+E)$
+
+*   Space: $O(V)$
+
+*   ```python
+    # BFS
+    from collections import deque
+    
+    class Solution:
+        def findOrder(self, numCourses: int, prerequisites: List[List[int]]) -> List[int]:
+            indegree = [0] * numCourses
+            graph = [[] for i in range(numCourses)]
+            for target, prereq in prerequisites:
+                graph[prereq].append(target)
+                indegree[target] += 1
+            
+            queue = deque()
+            count = 0
+            result = []
+            for start in range(numCourses):
+                if indegree[start] == 0:
+                    queue.append(start)
+            
+            while queue:
+                cur = queue.popleft()
+                count += 1
+                result.append(cur)
+                for target in graph[cur]:
+                    indegree[target] -= 1
+                    if indegree[target] == 0:
+                        queue.append(target)
+                    # early stop
+                    elif indegree[target] < 0:
+                        return []
+            if count == numCourses:
+                return result
+            else:
+                return []
+                    
+    ```
+
+
+
+### 46. Permutations
+
 
 
 
