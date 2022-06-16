@@ -2213,13 +2213,254 @@
                     
     ```
 
-
+## 06.15
 
 ### 46. Permutations
 
+*   Time: $O(n!)$ I think
+
+*   Space: $O(n)$
+
+*   ```python
+    class Solution:
+        def __init__(self):
+            self.result = []
+        def backtrack(self, nums: List[int], track: List[int], used: List[bool]):
+            if (len(track) == len(nums)):
+                self.result.append(track[:])
+                return
+            for i, num in enumerate(nums):
+                if not used[i]:
+                    used[i] = True
+                    track.append(num)
+                    self.backtrack(nums, track, used)
+                    used[i] = False
+                    track.pop()
+                
+        def permute(self, nums: List[int]) -> List[List[int]]:
+            used = [False] * len(nums)
+            self.backtrack(nums, [], used)
+            return self.result
+    ```
+
+### 51. N-Queens
+
+*   Time: $--$
+
+*   Space: $--$
+
+*   ```python
+    
+    class Solution:
+        def __init__(self):
+            self.result = []
+            self.num = 0
+        
+        def convert_chess(self, track):
+            chess = []
+            for row, col in enumerate(track):
+                chess_row = ['.'] * self.num
+                chess_row[col] = 'Q'
+                chess.append(''.join(chess_row))
+            return chess
+        
+        def is_valid(self, track: List[int], cur_col: int) -> bool:
+            cur_row = len(track) + 1 - 1
+            for row, col in enumerate(track):
+                if abs(cur_row - row) == abs(cur_col - col) or col == cur_col:
+                    return False
+            return True
+            
+        def backtrack(self, track: List[int]):
+            if len(track) == self.num:
+                self.result.append(self.convert_chess(track))
+                return
+            for cur_col in range(self.num):
+                if self.is_valid(track, cur_col):
+                    track.append(cur_col)
+                    self.backtrack(track)
+                    track.pop()
+            
+        def solveNQueens(self, n: int) -> List[List[str]]:
+            self.num = n
+            self.backtrack([])
+            return self.result
+            
+    ```
+
+### !!! 698. Partition to K Equal Sum Subsets
+
+*   Time Limit Exceeded
 
 
 
+### 78. Subsets
+
+>   unique, non-duplicate
+
+*   Time: $O(2^n)?$
+
+*   Space: 
+
+*   ```python
+    class Solution:
+        def __init__(self):
+            self.result = []
+            
+        def backtrack(self, track: List[int], nums: List[int], start: int):
+            self.result.append(track[:])
+            
+            if len(track) == len(nums):
+                return
+            
+            for i in range(start, len(nums)):
+                val = nums[i]
+                track.append(val)
+                self.backtrack(track, nums, i + 1)
+                track.pop()
+            
+        def subsets(self, nums: List[int]) -> List[List[int]]:
+            self.backtrack([], nums, 0)
+            return self.result
+            
+    ```
+
+
+
+### 77. Combinations
+
+*   ```python
+    class Solution:
+        def __init__(self):
+            self.result = []
+            
+        def backtrack(self, track, k, n, start):
+            if len(track) == k:
+                self.result.append(track[:])
+                return
+            for i in range(start, n):
+                val = i + 1 
+                track.append(val)
+                self.backtrack(track, k, n, i + 1)
+                track.pop()
+        
+        def combine(self, n: int, k: int) -> List[List[int]]:
+            self.backtrack([], k, n, 0)
+            return self.result
+            
+    ```
+
+
+
+### 90. Subsets II
+
+*   ```python
+    class Solution:
+        def __init__(self):
+            self.result = []
+            
+        def backtrack(self, track: List[int], nums: List[int], start: int):
+            self.result.append(track[:])
+            
+            if len(track) == len(nums):
+                return
+            
+            for i in range(start, len(nums)):
+                val = nums[i]
+                if i > start and val == nums[i - 1]:
+                    continue
+                track.append(val)
+                self.backtrack(track, nums, i + 1)
+                track.pop()
+            
+        def subsetsWithDup(self, nums: List[int]) -> List[List[int]]:
+            nums.sort()
+            self.backtrack([], nums, 0)
+            return self.result
+            
+    ```
+
+### 40. Combination Sum II
+
+*   ```python
+    class Solution:
+        def __init__(self):
+            self.result = []
+            
+        def backtrack(self, track, cur_sum, target, candidates, start):
+            if cur_sum == target:
+                return self.result.append(track[:])
+    
+            for i in range(start, len(candidates)):
+                val = candidates[i]
+                if cur_sum + val <= target and not (i > start and val == candidates[i - 1]):
+                    track.append(val)
+                    self.backtrack(track, cur_sum + val, target, candidates, i + 1)
+                    track.pop()
+            
+        def combinationSum2(self, candidates: List[int], target: int) -> List[List[int]]:
+            candidates.sort(reverse=True)
+            self.backtrack([], 0, target, candidates, 0)
+            return self.result
+            
+    ```
+
+
+
+### 47. Permutations II
+
+*   class Solution:
+        def __init__(self):
+            self.result = []
+            
+
+    ```python
+    def backtrack(self, track, nums, visited):
+        if len(track) == len(nums):
+            self.result.append(track[:])
+            return
+        for i, val in enumerate(nums):
+            if visited[i] or (i > 0 and nums[i] == nums[i - 1] and not visited[i-1]):
+                continue
+            track.append(val)
+            visited[i] = True
+            self.backtrack(track, nums, visited)
+            track.pop()
+            visited[i] = False
+    
+    def permuteUnique(self, nums: List[int]) -> List[List[int]]:
+        nums.sort(reverse=True)
+        self.backtrack([], nums, [False] * len(nums))
+        return self.result
+    
+    ```
+
+
+
+### 39. Combination Sum
+
+*   ```python
+    class Solution:
+        def __init__(self):
+            self.result = []
+            
+        def backtrack(self, track, cur_sum, target, candidates, start):
+            if cur_sum == target:
+                self.result.append(track[:])
+            for i in range(start, len(candidates)):
+                val = candidates[i]
+                if cur_sum + val <= target:
+                    track.append(val)
+                    self.backtrack(track, cur_sum + val, target, candidates, i)
+                    track.pop()
+        
+        def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
+            self.backtrack([], 0, target, candidates, 0)
+            return self.result
+        
+    ```
+
+*   
 
 
 
