@@ -236,6 +236,8 @@
 
 ## BFS
 
+>   usually for finding the most value. DFS can also do that, but it has to visit all nodes. However, BFS usually spend more space.
+
 
 
 

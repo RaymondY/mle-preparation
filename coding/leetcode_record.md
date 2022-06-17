@@ -2460,9 +2460,314 @@
         
     ```
 
-*   
 
 
+## 06.16
+
+### 200. Number of Islands
+
+>   FloodFill
+
+*   ```python
+    # must apply DFS / BFS
+    class Solution:   
+        def dfs(self, grid, row, col):
+            row_length = len(grid)
+            col_length = len(grid[0])
+            if row == -1 or row == row_length or col == -1 or col == col_length:
+                return
+            if grid[row][col] == "0":
+                return
+            grid[row][col] = "0"
+            # check up
+            self.dfs(grid, row - 1, col)
+            # check down
+            self.dfs(grid, row + 1, col)
+            # check left
+            self.dfs(grid, row, col - 1)
+            # check right
+            self.dfs(grid, row, col + 1)
+            
+        
+        def numIslands(self, grid: List[List[str]]) -> int:
+            if not grid or not grid[0]:
+                return 0
+            row_length = len(grid)
+            col_length = len(grid[0])
+            count = 0
+            for row in range(row_length):
+                for col in range(col_length):
+                    if grid[row][col] == "1":
+                        count += 1
+                        # FloodFill
+                        self.dfs(grid, row, col)
+            
+            return count
+            
+    ```
+
+
+
+### 1254. Number of Closed Islands
+
+>   Delete all islands next to edges
+>
+>   /// union find? BFS?
+
+*   ```python
+    class Solution:
+        def flood_fill(self, grid, row, col):
+            row_length = len(grid)
+            col_length = len(grid[0])
+            if row < 0 or row >= row_length or col < 0 or col >= col_length:
+                return
+            if grid[row][col] == 1:
+                return
+            
+            grid[row][col] = 1
+            self.flood_fill(grid, row - 1, col)
+            self.flood_fill(grid, row + 1, col)
+            self.flood_fill(grid, row, col - 1)
+            self.flood_fill(grid, row, col + 1)
+            
+        def closedIsland(self, grid: List[List[int]]) -> int:
+            if not grid or not grid[0]:
+                return 0
+            row_length = len(grid)
+            col_length = len(grid[0])
+            
+            # here is the point
+            for row in range(row_length):
+                self.flood_fill(grid, row, 0)
+                self.flood_fill(grid, row, col_length - 1)
+            for col in range(col_length):
+                self.flood_fill(grid, 0, col)
+                self.flood_fill(grid, row_length - 1, col)
+            
+            count = 0
+            for row in range(row_length):
+                for col in range(col_length):
+                    if grid[row][col] == 0:
+                        count += 1
+                        self.flood_fill(grid, row, col)
+            return count
+            
+    ```
+
+
+
+### 1020. Number of Enclaves
+
+*   ```python
+    class Solution:
+        def __init__(self):
+            self.count = 0
+            
+        def flood_fill(self, grid, row, col, is_count=True):
+            row_length = len(grid)
+            col_length = len(grid[0])
+            if row < 0 or row > row_length - 1 or col < 0 or col > col_length - 1:
+                return
+            if grid[row][col] == 0:
+                return
+            if is_count:
+                self.count += 1
+            grid[row][col] = 0
+            self.flood_fill(grid, row - 1, col, is_count)
+            self.flood_fill(grid, row + 1, col, is_count)
+            self.flood_fill(grid, row, col - 1, is_count)
+            self.flood_fill(grid, row, col + 1, is_count)
+            
+        def numEnclaves(self, grid: List[List[int]]) -> int:
+            if not grid or not grid[0]:
+                return 0
+            row_length = len(grid)
+            col_length = len(grid[0])
+            for row in range(row_length):
+                self.flood_fill(grid, row, 0, is_count=False)
+                self.flood_fill(grid, row, col_length - 1, is_count=False)
+            for col in range(col_length):
+                self.flood_fill(grid, 0, col, is_count=False)
+                self.flood_fill(grid, row_length - 1, col, is_count=False)   
+            for row in range(row_length):
+                for col in range(col_length):
+                    if grid[row][col] == 1:
+                        self.flood_fill(grid, row, col)
+            return self.count
+            
+    ```
+
+### 695. Max Area of Island
+
+*   ```python
+    class Solution:
+        def flood_fill(self, grid, row, col):
+            row_length = len(grid)
+            col_length = len(grid[0])
+            if row < 0 or row > row_length - 1 or col < 0 or col > col_length - 1:
+                return 0
+            if grid[row][col] == 0:
+                return 0
+            grid[row][col] = 0
+            count = 1
+            count += self.flood_fill(grid, row - 1, col)
+            count += self.flood_fill(grid, row + 1, col)
+            count += self.flood_fill(grid, row, col - 1)
+            count += self.flood_fill(grid, row, col + 1)
+            
+            return count
+            
+        def maxAreaOfIsland(self, grid: List[List[int]]) -> int:
+            if not grid or not grid[0]:
+                return 0
+            row_length = len(grid)
+            col_length = len(grid[0])
+            result = 0
+            for row in range(row_length):
+                for col in range(col_length):
+                    if grid[row][col] == 1:
+                        count = self.flood_fill(grid, row, col)
+                        if count > result:
+                            result = count
+            return result
+            
+    ```
+
+### !!! 1905. Count Sub Islands
+
+>   similar to 1254
+
+*   ```python
+    class Solution:
+        def flood_fill(self, grid, row, col):
+            row_length = len(grid)
+            col_length = len(grid[0])
+            if row < 0 or row >= row_length or col < 0 or col >= col_length:
+                return
+            if grid[row][col] == 0:
+                return
+            
+            grid[row][col] = 0
+            self.flood_fill(grid, row - 1, col)
+            self.flood_fill(grid, row + 1, col)
+            self.flood_fill(grid, row, col - 1)
+            self.flood_fill(grid, row, col + 1)
+            
+        def countSubIslands(self, grid1: List[List[int]], grid2: List[List[int]]) -> int:
+            if not grid2 or not grid2[0]:
+                return 0
+            row_length = len(grid2)
+            col_length = len(grid2[0])
+            count = 0
+            for row in range(row_length):
+                for col in range(col_length):
+                    if grid1[row][col] == 0 and grid2[row][col] == 1:
+                        self.flood_fill(grid2, row, col)
+            for row in range(row_length):
+                for col in range(col_length):
+                    if grid2[row][col] == 1:
+                        count += 1
+                        self.flood_fill(grid2, row, col)
+            return count
+        
+    ```
+
+
+
+### 694. Number of Distinct Islands
+
+*   Premium only...
+
+
+
+### 111. Minimum Depth of Binary Tree
+
+>   BFS is better thant DFS cause DFS need to visit all nodes but not for BFS.
+
+*   Time: $O(n)$ 
+
+*   Space: $O(n)$
+
+*   ```python
+    from collections import deque
+    
+    class Solution:
+        def minDepth(self, root: Optional[TreeNode]) -> int:
+            if not root:
+                return 0
+            queue = deque()
+            queue.append(root)
+            depth = 0
+            while queue:
+                depth += 1
+                size = len(queue)
+                for i in range(size):
+                    cur = queue.popleft()
+                    if not cur.left and not cur.right:
+                        return depth
+                    if cur.left:
+                        queue.append(cur.left)
+                    if cur.right:
+                        queue.append(cur.right)
+            return depth
+        
+    ```
+
+
+
+### !!! 752. Open the Lock
+
+*   ```python
+    from collections import deque
+    
+    class Solution:
+        def plus_wheel(self, cur, pos):
+            temp = int(cur[pos])
+            if temp == 9:
+                temp = 0
+            else:
+                temp += 1
+            return cur[:pos] + str(temp) + cur[pos + 1:]
+        
+        def minus_wheel(self, cur, pos):
+            temp = int(cur[pos])
+            if temp == 0:
+                temp = 9
+            else:
+                temp -= 1
+            return cur[:pos] + str(temp) + cur[pos + 1:]
+        
+        def openLock(self, deadends: List[str], target: str) -> int:
+            visited = set(deadends)
+            if "0000" in visited:
+                return -1
+            queue = deque()
+            queue.append("0000")
+            step = 0
+            while queue:
+                size = len(queue)
+                for i in range(size):
+                    cur = queue.popleft()
+                    if cur == target:
+                        return step
+                    for pos in range(4):
+                        plus = self.plus_wheel(cur, pos)
+                        minus = self.minus_wheel(cur, pos)
+                        if plus not in visited:
+                            queue.append(plus)
+                            visited.add(plus)
+                        if minus not in visited:
+                            queue.append(minus)
+                            visited.add(minus)
+                step += 1
+                
+            return -1
+    
+    ```
+
+
+
+## 06.17
 
 
 
