@@ -2765,9 +2765,129 @@
     
     ```
 
-
+*   /// 2 ends
 
 ## 06.17
 
+### 773. Sliding Puzzle
 
+*   from collections import deque
 
+    class Solution:
+        def __init__(self):
+            self.neighbor = [[1, 3], [0, 2, 4], [1, 5], [0, 4], [1, 3, 5], [2, 4]]
+            
+    ```python
+    def move(self, board, zero, tar):
+        new_board = list(board)
+        new_board[zero] = board[tar]
+        new_board[tar] = '0'
+        return ''.join(new_board)
+        
+    def slidingPuzzle(self, board: List[List[int]]) -> int:
+        init_board_list = []
+        init_zero = 0
+        for row in range(2):
+            for col in range(3):
+                init_board_list.append(str(board[row][col]))
+                if board[row][col] == 0:
+                    init_zero = row * 3 + col
+        init_board = ''.join(init_board_list)
+        visited = set()
+        visited.add(init_board)
+        target = "123450"
+        step = 0
+        queue = deque()
+        queue.append((init_board, init_zero))
+        while queue:
+            size = len(queue)
+            for i in range(size):
+                cur_board, zero = queue.popleft()
+                if cur_board == target:
+                    return step
+                for nei in self.neighbor[zero]:
+                    new_board = self.move(cur_board, zero, nei)
+                    if new_board in visited:
+                        continue
+                    queue.append((new_board, nei))
+                    visited.add(new_board)
+            step += 1
+        return -1
+        
+    ```
+
+### 509. Fibonacci Number
+
+*   Time: $O(n)$; Space: $O(n)$.
+
+*   ```python
+    class Solution:
+        def fib(self, n: int) -> int:
+            if n <= 1:
+                return n
+            f = [0] * (n + 1)
+            f[1] = 1
+            for i in range(2, n + 1):
+                f[i] = f[i - 1] + f[i - 2]
+            return f[n]
+    
+    ```
+
+*   Actually we only need `f[i-1]` and `f[i-2]`
+
+*   Time: $O(n)$; Space: $O(1)$.
+
+*   ```python
+    class Solution:
+        def fib(self, n: int) -> int:
+            if n <= 1:
+                return n
+            f_1 = 1
+            f_2 = 0
+            for i in range(2, n + 1):
+                result = f_1 + f_2
+                f_2 = f_1
+                f_1 = result
+            return f_1
+            
+    ```
+
+### 322. Coin Change
+
+*   Top-down
+
+    *   ```python
+        class Solution:
+            # dp[n] = -1, n < 0
+            # dp[n] = 0, n = 0
+            # dp[n] = min(dp(n - coint) + 1 | for coin in coins), n > 0
+            def __init__(self):
+                self.amount = 0
+                self.memo = []
+                
+            def dp(self, coins, amount):
+                if amount == 0:
+                    return 0
+                if amount < 0:
+                    return -1
+                if self.memo[amount] != self.amount + 1:
+                    return self.memo[amount]
+                
+                result = self.amount + 1
+                for coin in coins:
+                    sub_problem = self.dp(coins, amount - coin)
+                    if sub_problem == -1:
+                        continue
+                    result = min(result, sub_problem + 1)
+                
+                self.memo[amount] = result if result < self.amount + 1 else -1
+                return self.memo[amount]
+            
+            def coinChange(self, coins: List[int], amount: int) -> int:
+                self.amount = amount
+                self.memo = [amount + 1] * (amount + 1)
+                return self.dp(coins, amount)
+                
+        ```
+
+    *   

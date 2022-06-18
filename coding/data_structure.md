@@ -240,9 +240,38 @@
 
 
 
+# Dynamic Programming
 
+>   Usually find the most value. Compare with method of exhaustion (BFS), DP has optimal substructure.
 
+*   Base case + (State + Selection) -- (State Equation)
+*   For overlapping: `memos`
 
+*   Two structure
+
+    *   Top-down
+
+        ```python
+        def dp(state1, state2, ...):
+        	for selection in selections:
+                result = find_target(result, dp(state1, ...))
+            return result
+        ```
+
+        
+
+    *   Bottom-up
+
+        ```python
+        dp[0][0][...] = base case
+        
+        for state1 in states1:
+            for state2 in states2:
+                for ...
+                	dp[state1][state2][...] = find_target(selection1, selection2)
+        ```
+
+        
 
 # Later
 
