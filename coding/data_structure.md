@@ -271,7 +271,14 @@
                 	dp[state1][state2][...] = find_target(selection1, selection2)
         ```
 
-        
+*   Some important value
+
+    *   Invalid
+    *   Unvisited
+
+*   Optimal substructure asks the ==subproblems are independent with each other.==
+
+*   To find the overlapping, draw the recursive tree.
 
 # Later
 

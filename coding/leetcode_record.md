@@ -2890,4 +2890,139 @@
                 
         ```
 
+## 06.20
+
+### 322. Coin Change
+
+*   Top-down
+
+*   ```python
+    # Top-down
+    class Solution:
+        # memo[amount] = num of coins
+        def __init__(self):
+            self.memo = []
+            
+        def dp(self, coins, amount):
+            if amount == 0:
+                return 0
+            if amount < 0:
+                return -1
+            if self.memo[amount] != -2:
+                return self.memo[amount]
+            result = amount + 1
+            for coin in coins:
+                # if amount - coin < 0:
+                #     continue
+                sub_problem = self.dp(coins, amount - coin)
+                if sub_problem != -1:
+                    result = min(result, sub_problem + 1)
+            self.memo[amount] = result if result < amount + 1 else -1
+            return self.memo[amount]
+            
+        def coinChange(self, coins: List[int], amount: int) -> int:
+            # -2 means non-visited
+            self.memo = [-2] * (amount + 1)
+            return self.dp(coins, amount)
+    
+    ```
+
+*   !!! Bottom-up
+
+*   ```python
+    # Bottom up
+    class Solution:
+        def coinChange(self, coins: List[int], amount: int) -> int:
+            dp = [amount + 1] * (amount + 1)
+            # base state
+            dp[0] = 0
+            for state in range(amount + 1):
+                for coin in coins:
+                    # no solution
+                    if state - coin < 0:
+                        continue
+                    dp[state] = min(dp[state], dp[state - coin] + 1)
+            
+            return dp[amount] if dp[amount] != amount + 1 else -1
+    
+    ```
+
+
+
+### 931. Minimum Falling Path Sum
+
+*   ```python
+    class Solution:
+        def minFallingPathSum(self, matrix: List[List[int]]) -> int:
+            size = len(matrix)
+            dp_pre = matrix[0]
+            dp_cur = dp_pre[:]
+            for i in range(1, size):
+                for j in range(size):
+                    if j == 0:
+                        dp_cur[j] = min(dp_pre[j], dp_pre[j + 1]) + matrix[i][j]
+                    elif j == size - 1:
+                        dp_cur[j] = min(dp_pre[j - 1], dp_pre[j]) + matrix[i][j]
+                    else:
+                        dp_cur[j] = min(dp_pre[j - 1], dp_pre[j], dp_pre[j + 1])+ matrix[i][j]
+                dp_pre = dp_cur[:]
+            return min(dp_cur)
+                    
+    ```
+
+### !!! 300. Longest Increasing Subsequence
+
+*   DP:
+
+    *   Time: $O(n^2)$
+
+    *   ```python
+        # dp[i]: the longest subsequence ending at i
+        class Solution:
+            def lengthOfLIS(self, nums: List[int]) -> int:
+                size = len(nums)
+                dp = [1] * size
+                for i in range(1, size):
+                    for j in range(i):
+                        if nums[i] > nums[j]:
+                            dp[i] = max(dp[i], dp[j] + 1)
+                return max(dp)
+                
+        ```
+
     *   
+
+*   /// Binary Search
+
+    *   Time: $O(n\log n)$
+
+### /// !!! 354. Russian Doll Envelopes
+
+*   DP (Time Limit Exceeded):
+
+    *   Time: $O(n^2)$
+
+    *   ```python
+        class Solution:
+            def maxEnvelopes(self, envelopes: List[List[int]]) -> int:
+                size = len(envelopes)
+                # !!!
+                envelopes = sorted(envelopes, key = lambda x: [x[0], -x[1]])
+                dp = [1] * size
+                for i in range(1, size):
+                    cur_h = envelopes[i][1]
+                    for j in range(i):
+                        pre_h = envelopes[j][1]
+                        if cur_h > pre_h:
+                            dp[i] = max(dp[i], dp[j] + 1)
+                return max(dp)
+                
+        ```
+
+    *   
+
+*   /// Binary Search
+
+    *   Time: $O(n\log n)$
+
+### 
