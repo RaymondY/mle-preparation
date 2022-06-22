@@ -3025,4 +3025,194 @@
 
     *   Time: $O(n\log n)$
 
-### 
+## 06.21
+
+### !!! 53. Maximum Subarray
+
+*   DP
+
+    *   Time: $O(n)$
+
+    *   ```python
+        class Solution:
+            def maxSubArray(self, nums: List[int]) -> int:
+                dp_0 = nums[0]
+                dp_1 = 0
+                result = dp_0
+                for i in range(1, len(nums)):
+                    dp_1 = max(nums[i], dp_0 + nums[i])
+                    dp_0 = dp_1
+                    result = max(result, dp_1)
+                return result
+        
+        ```
+
+    *   
+
+*   /// divide and conquer
+
+
+
+### !!! 72. Edit Distance
+
+*   ```python
+    class Solution:
+        def minDistance(self, word1: str, word2: str) -> int:
+            size_1 = len(word1)
+            size_2 = len(word2)
+            dp = [[0] * (size_2 + 1) for i in range(size_1 + 1)]
+            # base case
+            for i in range(size_1 + 1):
+                dp[i][0] = i
+            for j in range(size_2 + 1):
+                dp[0][j] = j
+            i = j = 1
+            for i in range(1, size_1 + 1):
+                for j in range(1, size_2 + 1):
+                    if word1[i-1] == word2[j-1]:
+                        dp[i][j] = dp[i-1][j-1]
+                    else:
+                        dp[i][j] = min(dp[i][j-1] + 1, dp[i-1][j] + 1, dp[i-1][j-1] + 1)
+            return dp[size_1][size_2]
+                    
+    ```
+
+### 1143. Longest Common Subsequence
+
+*   ```python
+    class Solution:
+        def longestCommonSubsequence(self, text1: str, text2: str) -> int:
+            size_1 = len(text1)
+            size_2 = len(text2)
+            dp = [[0] * (size_2 + 1) for i in range(size_1 + 1)]
+            for i in range(1, size_1 + 1):
+                for j in range(1, size_2 + 1):
+                    if text1[i - 1] == text2[j - 1]:
+                        dp[i][j] = dp[i - 1][j - 1] + 1
+                    else:
+                        dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
+            return dp[size_1][size_2]
+            
+    ```
+
+### !!! /// 10. Regular Expression Matching
+
+
+
+### 518. Coin Change 2
+
+*   Note the permutation except the same coin leads to wrong num. (e.g., 1, 1, 2 and 2, 1, 1 and 1, 2, 1 should be treat as one result.)
+
+*   Time: $O(n * amount)$
+
+*   Space: $O(amount)$
+
+*   ```python
+    class Solution:
+        def change(self, amount: int, coins: List[int]) -> int:
+            dp = [0] * (amount + 1)
+            dp[0] = 1
+            # !!! the loop order is different to coin change 1
+            # We remove duplicate cases in this way.
+            for coin in coins:
+                for state in range(1, amount + 1):
+                    if state - coin < 0:
+                        continue
+                    dp[state] += dp[state-coin]
+            return dp[amount]
+            
+    ```
+
+
+
+### !!! 416. Partition Equal Subset Sum
+
+*   !!! Similar to the last question, we fix the order of selections, but they can get selected only once. So we reverse the state iteration order to aviod reusing. (e.g., [1, 2, 5], then 1 will be reused to set all dp to be True)
+
+*   ```python
+    class Solution:
+        def canPartition(self, nums: List[int]) -> bool:
+            sum_val = sum(nums)
+            if sum_val % 2 != 0:
+                return False
+            target = int(sum_val / 2)
+            dp = [False] * (target + 1)
+            dp[0] = True
+            for select in nums:
+                for state in range(target, 0, -1):
+                    if state - select < 0:
+                        continue
+                    dp[state] = dp[state - select] or dp[state]
+            return dp[target]
+            
+    ```
+
+### 121. Best Time to Buy and Sell Stock
+
+*   ```python
+    class Solution:
+        def maxProfit(self, prices: List[int]) -> int:
+            MAX_VAL = 10000
+            day_num = len(prices)
+            dp_0 = 0
+            dp_1 = -MAX_VAL
+            for day in range(1, day_num + 1):
+                dp_0 = max(dp_0, dp_1 + prices[day-1])
+                dp_1 = max(dp_1, -prices[day-1])
+            return dp_0
+        
+        # def maxProfit(self, prices: List[int]) -> int:
+        #     MAX_VAL = 10000
+        #     day_num = len(prices)
+        #     dp = [[0] * 2 for i in range(day_num + 1)]
+        #     dp[0][1] = -MAX_VAL
+        #     for day in range(1, day_num + 1):
+        #         dp[day][0] = max(dp[day-1][0], dp[day-1][1] + prices[day-1])
+        #         dp[day][1] = max(dp[day-1][1], -prices[day-1])
+        #     return dp[day_num][0]
+    
+    ```
+
+### 122. Best Time to Buy and Sell Stock II
+
+*   ```python
+    # same
+    class Solution:
+        def maxProfit(self, prices: List[int]) -> int:
+            day_num = len(prices)
+            dp_0, dp_1 = 0, -10000
+            for day in range(1, day_num + 1):
+                temp_0, temp_1 = dp_0, dp_1
+                dp_0 = max(temp_0, temp_1 + prices[day-1])
+                dp_1 = max(temp_1, temp_0 - prices[day-1])
+            return dp_0
+            
+    ```
+
+
+
+### !!! 123. Best Time to Buy and Sell Stock III
+
+*   Note that `tran` is the maximun transaction num
+
+*   ```python
+    class Solution:
+        def maxProfit(self, prices: List[int]) -> int:
+            day_num = len(prices)
+            # dp[day][tran][has?]
+            dp = [[[0] * 2 for j in range(3)] for i in range(day_num + 1)]
+            for j in range(3):
+                dp[0][j][1] = -100000
+            for day in range(1, day_num + 1):
+                dp[day][0][0] = 0
+                for tran in range(2, 0, -1):
+                    dp[day][tran][0] = max(dp[day-1][tran][0], dp[day-1][tran][1] + prices[day-1])
+                    dp[day][tran][1] = max(dp[day-1][tran][1], dp[day-1][tran-1][0] - prices[day-1])
+            return dp[day_num][2][0]
+        
+    ```
+
+
+
+
+
