@@ -3214,5 +3214,215 @@
 
 
 
+## 06.22
+
+### 188. Best Time to Buy and Sell Stock IV
+
+*   ```python
+    # state 1: day; state 2: k; state 3: has?
+    # base case
+    class Solution:
+        def maxProfit(self, k: int, prices: List[int]) -> int:
+            day_num = len(prices)
+            dp = [[[0] * 2 for j in range(k + 1)] for i in range(day_num + 1)]
+            INFINITY = 1000
+            for j in range(k + 1):
+                dp[0][j][1] = -INFINITY
+            
+            for i in range(1, day_num + 1):
+                for j in range(k, 0, -1):
+                    dp[i][j][0] = max(dp[i-1][j][0], dp[i-1][j][1] + prices[i-1])
+                    dp[i][j][1] = max(dp[i-1][j][1], dp[i-1][j-1][0] - prices[i-1])
+            return dp[day_num][k][0]
+            
+    ```
+
+*   **the loop order for k is not matter since `dp[i][k][]` won't depend on `dp[i][k-1][]`**
 
 
+
+### !!! 309. Best Time to Buy and Sell Stock with Cooldown
+
+*   ```python
+    class Solution:
+        def maxProfit(self, prices: List[int]) -> int:
+            day_num = len(prices)
+            dp_0, dp_1, dp_pre_0 = 0, -1000, 0
+            for day in range(day_num):
+                if day + 1 == 1:
+                    dp_0 = 0
+                    dp_1 = -prices[day]
+                elif day + 1 == 2:
+                    dp_0 = max(dp_0, dp_1 + prices[day])
+                    dp_1 = max(dp_1, -prices[day])
+                else:
+                    temp = dp_0
+                    dp_0 = max(dp_0, dp_1 + prices[day])
+                    dp_1 = max(dp_1, dp_pre_0 - prices[day])
+                    dp_pre_0 = temp
+            return dp_0
+        
+    #     def maxProfit(self, prices: List[int]) -> int:
+    #         day_num = len(prices)
+    #         dp = [[0] * 2 for i in range(day_num)]
+            
+    #         for day in range(day_num):
+    #             if day + 1 == 1:
+    #                 dp[day][1] = -prices[day]
+    #             elif day + 1 == 2:
+    #                 dp[day][0] = max(dp[day-1][0], dp[day-1][1] + prices[day])
+    #                 dp[day][1] = max(dp[day-1][1], -prices[day])
+    #             else:
+    #                 dp[day][0] = max(dp[day-1][0], dp[day-1][1] + prices[day])
+    #                 dp[day][1] = max(dp[day-1][1], dp[day-2][0] - prices[day])
+    #         return dp[day_num-1][0]
+    
+    ```
+
+*   
+
+
+
+### 714. Best Time to Buy and Sell Stock with Transaction Fee
+
+*   ```python
+    class Solution:
+        def maxProfit(self, prices: List[int], fee: int) -> int:
+            day_num = len(prices)
+            dp_0 = 0
+            dp_1 = -50000
+            for day in range(1, day_num + 1):
+                temp = dp_0
+                dp_0 = max(dp_0, dp_1 + prices[day-1])
+                dp_1 = max(dp_1, temp - prices[day-1] - fee)
+            return dp_0
+        # def maxProfit(self, prices: List[int], fee: int) -> int:
+        #     day_num = len(prices)
+        #     dp = [[0] * 2 for day in range(day_num + 1)]
+        #     dp[0][1] = -50000
+        #     for day in range(1, day_num + 1):
+        #         dp[day][0] = max(dp[day-1][0], dp[day-1][1] + prices[day-1])
+        #         dp[day][1] = max(dp[day-1][1], dp[day-1][0] - prices[day-1] - fee)
+        #     return dp[day_num][0]
+    ```
+
+
+
+### 198. House Robber
+
+*   Analysis:
+
+    *   State: location in nums;
+    *   Selection: Rob its or not
+
+*   ```python
+    class Solution:
+        def rob(self, nums: List[int]) -> int:
+            dp_0 = 0
+            dp_1 = nums[0]
+            for i in range(1, len(nums)):
+                temp = dp_0
+                dp_0 = max(dp_0, dp_1)
+                dp_1 = temp + nums[i]
+            return max(dp_0, dp_1)
+            
+    ```
+
+
+
+### !!! 213. House Robber II
+
+*   There are 2 cases:
+
+    *   Exclude the last one
+    *   Exclude the first one
+
+*   ```python
+    class Solution:
+        def selected_rob(self, nums, start, end):
+            dp_0 = 0
+            dp_1 = nums[start]
+            for i in range(start + 1, end):
+                temp = dp_0
+                dp_0 = max(dp_0, dp_1)
+                dp_1 = temp + nums[i]
+            return max(dp_0, dp_1)
+        
+        def rob(self, nums: List[int]) -> int:
+            if len(nums) == 1:
+                return nums[0]
+            return max(self.selected_rob(nums, 0, len(nums)-1), self.selected_rob(nums, 1, len(nums)))
+            
+            
+    ```
+
+
+
+### 337. House Robber III
+
+>   Traverse a binary tree & DP
+
+*   Traverse: what should we do at each root? Give the max value of this subtree containing the root or not. -> `max_0` & `max_1`
+
+    *   We need to know subtrees first -> postorder traverse
+
+*   ```python
+    # Definition for a binary tree node.
+    # class TreeNode:
+    #     def __init__(self, val=0, left=None, right=None):
+    #         self.val = val
+    #         self.left = left
+    #         self.right = right
+    class Solution:
+        def traverse(self, root):
+            if not root:
+                return 0, -10000
+            max_left_0, max_left_1 = self.traverse(root.left)
+            max_right_0, max_right_1 = self.traverse(root.right)
+            # dp here
+            max_0 = max(max_left_0, max_left_1) + max(max_right_0, max_right_1)
+            max_1 = root.val + max_left_0 + max_right_0
+            return max_0, max_1
+            
+        def rob(self, root: Optional[TreeNode]) -> int:
+            return max(self.traverse(root))
+            
+    ```
+
+
+
+### !!! 877. Stone Game
+
+*   (bad) Top-down recursive
+
+    *   Time & Space: $O(n^2)$
+
+    *   ```python
+        class Solution:
+            def stoneGame(self, piles: List[int]) -> bool:
+                @lru_cache(None)
+                def dp(start, end):
+                    if start > end:
+                        return 0, 0
+                    start_first, start_then = dp(start + 1, end)
+                    end_first, end_then= dp(start, end - 1)
+                    # start_then is Alice's next selection
+                    if start_then + piles[start] > end_then + piles[end]:
+                        return start_then + piles[start], start_first
+                    return end_then + piles[end], end_first
+                alice, bob = dp(0, len(piles) - 1)
+                return True if alice > bob else False
+                
+        ```
+
+    *   Time Limit Exceeded without `@lru_cache(None)`
+
+*   continue this tomorrow
+
+
+
+## 06.23
+
+### last problem
+
+*   
