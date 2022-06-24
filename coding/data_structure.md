@@ -280,6 +280,14 @@
 
 *   To find the overlapping, draw the recursive tree.
 
+*   **The State Equation decides the loop order of bottom up**
+
+*   Time complexity:
+
+    *   **Top-down: the # of subproblem \* the T of subproblem**
+
+*   -
+
 # Later
 
 *   Sort
@@ -293,4 +301,10 @@
 *   Hard
     *   315
     *   327
+*   *dp game*
+    *   174.   Dungeon Game
+    *   514. Freedom Trail
+    *   
+    
+*   -
 

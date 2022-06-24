@@ -3423,6 +3423,231 @@
 
 ## 06.23
 
-### last problem
+### 877. Stone Game
 
-*   
+*   The loop order depends on the **State Equation**
+
+*   Bottom-up --- Top-down with dp table --- Top-down
+
+*   ```python
+    # Bottom-up
+    class Solution:
+        def stoneGame(self, piles: List[int]) -> bool:
+            size = len(piles)
+            dp = [[[0] * 2 for j in range(size)] for i in range(size)]
+            for end in range(1, size):
+                for start in range(end - 1, -1, -1):
+                    if piles[start] + dp[start + 1][end][1] > piles[end] + dp[start][end - 1][1]:
+                        first = piles[start] + dp[start + 1][end][1]
+                        second = dp[start + 1][end][0]
+                    else:
+                        first = piles[end] + dp[start][end - 1][1]
+                        second = dp[start][end - 1][0]
+                    dp[start][end] = [first, end]
+            alice, bob = dp[0][size-1]
+            return True if alice > bob else False
+        
+    #################
+    # Recursive with dp table
+    # class Solution:
+    #     def __init__(self):
+    #         self.memo = [[[]]]
+        
+    #     def dp(self, piles, start, end):
+    #         if start > end:
+    #             return 0, 0
+    #         if self.memo[start][end][0] != -1:
+    #             return self.memo[start][end]
+    #         start_first, start_second = self.dp(piles, start + 1, end)
+    #         end_first, end_second = self.dp(piles, start, end - 1)
+    #         if start_second + piles[start] > end_second + piles[end]:
+    #             self.memo[start][end] = [start_second + piles[start], start_first]
+    #             return start_second + piles[start], start_first
+    #         else:
+    #             self.memo[start][end] = [end_second + piles[end], end_first]
+    #             return end_second + piles[end], end_first
+            
+    #     def stoneGame(self, piles: List[int]) -> bool:
+    #         size = len(piles)
+    #         self.memo = [[[-1] * 2 for j in range(size)] for i in range(size)]
+    #         for i in range(size):
+    #             self.memo[i][i] = [0, 0]
+    #         alice, bob = self.dp(piles, 0, size - 1)
+    #         return True if alice > bob else False
+    
+    #################
+    # Recursive
+    # class Solution:
+    #     def stoneGame(self, piles: List[int]) -> bool:
+    #         @lru_cache(None)
+    #         def dp(start, end):
+    #             if start > end:
+    #                 return 0, 0
+    #             start_first, start_then = dp(start + 1, end)
+    #             end_first, end_then= dp(start, end - 1)
+    #             # start_then is Alice's next selection
+    #             if start_then + piles[start] > end_then + piles[end]:
+    #                 return start_then + piles[start], start_first
+    #             return end_then + piles[end], end_first
+    #         alice, bob = dp(0, len(piles) - 1)
+    #         return True if alice > bob else False
+            
+    ```
+
+
+
+### 64. Minimum Path Sum
+
+*   ```python
+    class Solution:
+        def minPathSum(self, grid: List[List[int]]) -> int:
+            row_size = len(grid)
+            col_size = len(grid[0])
+            dp = [[0] * col_size for i in range(row_size)]
+            dp[0][0] = grid[0][0]
+            for row in range(1, row_size):
+                dp[row][0] = grid[row][0] + dp[row-1][0]
+            for col in range(1, col_size):
+                dp[0][col] = grid[0][col] + dp[0][col-1]
+            for row in range(1, row_size):
+                for col in range(1, col_size):
+                    dp[row][col] = grid[row][col] + min(dp[row-1][col], dp[row][col-1])
+            return dp[row_size-1][col_size-1]
+        
+    ```
+
+
+
+### !!! /// 887. Super Egg Drop
+
+*   Time Limit Exceeded
+
+*   Time: $O(k*n^2)$
+
+*   Space: $O(k*n)$
+
+*   ```python
+    # dp[n][k]
+    class Solution:
+        def superEggDrop(self, k: int, n: int) -> int:
+            memo = [[-1] * (n + 1) for i in range(k + 1)]
+            @lru_cache(None)
+            def dp(k, n):
+                if k == 1:
+                    return n
+                if n == 0:
+                    return 0
+                if memo[k][n] != -1:
+                    return memo[k][n]
+                result = 10000
+    
+                for i in range(1, n + 1):
+                    # in least egg we take in the worst situation.
+                    # (last selection, (egg broke in ith, not broke) + 1)
+                    result = min(result, max(dp(k-1, i-1), dp(k, n-i)) + 1)
+                memo[k][n] = result
+                return result
+            return dp(k, n)
+        
+    ```
+
+
+
+### 787. Cheapest Flights Within K Stops
+
+*   dp
+
+    *   Time: $O(E * n * k)$?
+
+    *   ```python
+        # graph; bfs -> dp
+        # state: start, most flights
+        # equation: dp[start][k] = min(dp[i][k-1] + price)
+        class Solution:
+            def findCheapestPrice(self, n: int, flights: List[List[int]], src: int, dst: int, k: int) -> int:
+                # bfs -> we build the graph -> has weight -> adjacency matrix
+                # k becomes maximum step
+                graph = [[] for i in range(n)]
+                for start, end, price in flights:
+                    graph[start].append((end, price))
+                memo = [[-2] * (k + 1) for i in range(n)]
+                MAX_VALUE = 10000 * (k + 1)
+                @lru_cache(None)
+                def dp(start, k):
+                    if start == dst:
+                        return 0
+                    if k == -1:
+                        return -1
+                    if memo[start][k] != -2:
+                        return memo[start][k]
+                    cost = MAX_VALUE
+                    for stop, price in graph[start]:
+                        next_cost = dp(stop, k - 1)
+                        if next_cost == -1:
+                            continue
+                        cost = min(cost, next_cost + price)
+                    memo[start][k] = -1 if cost == MAX_VALUE else cost
+                    return memo[start][k]
+                
+                return dp(src, k)
+                
+        ```
+
+    *   
+
+*   /// Dijkstra
+
+### ///204. Count Primes
+
+>   Math
+
+*   Create a table
+
+*   /// Time: $O(N * \log \log N)$
+
+*   ```python
+    class Solution:
+        def countPrimes(self, n: int) -> int:
+            if n <= 1:
+                return 0
+            # Note it is "less than n"
+            table = [1] * n
+            table[0] = 0
+            table[1] = 0
+            left = 2
+            while left * left < n:
+                if table[left] == 1:
+                    right = left * left
+                    while right < n:
+                        table[right] = 0
+                        right += left
+                left += 1
+            return sum(table)
+    
+    ```
+
+
+
+### +++ 172. Factorial Trailing Zeroes
+
+>   math
+
+*   ```python
+    class Solution:
+        # sum_2 always > sum_5
+        def trailingZeroes(self, n: int) -> int:
+            sum_5 = 0
+            dividor = 5
+            while dividor <= n:
+                sum_5 += n // dividor
+                dividor = dividor * 5
+            return sum_5
+            
+    ```
+
+
+
+### /// 793. Preimage Size of Factorial Zeroes Function
+
+
+
