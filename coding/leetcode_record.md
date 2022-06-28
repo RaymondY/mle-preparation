@@ -3651,3 +3651,207 @@
 
 
 
+## 06.24
+
+### !!! +++ 382. Linked List Random Node
+
+*   p = 1/i
+
+*   ```python
+    # Definition for singly-linked list.
+    # class ListNode:
+    #     def __init__(self, val=0, next=None):
+    #         self.val = val
+    #         self.next = next
+    import random
+    
+    class Solution:
+    
+        def __init__(self, head: Optional[ListNode]):
+            self.head = ListNode()
+            self.head.next = head
+            
+        def getRandom(self) -> int:
+            loc = 0
+            head = self.head
+            result = -1
+            while head.next:
+                loc += 1
+                head = head.next
+                r = random.randint(1, loc)
+                if loc == r:
+                    result = head.val
+            return result
+    
+    
+    # Your Solution object will be instantiated and called as such:
+    # obj = Solution(head)
+    # param_1 = obj.getRandom()
+    
+    ```
+
+
+
+### +++!!!134. Gas Station
+
+>   Greedy
+
+*   Time: $O(n)$
+
+*   ```python
+    class Solution:
+        def travel(self, cost, gas):
+            rest = gas - cost
+            return -1 if rest < 0 else cost
+        
+        def canCompleteCircuit(self, gas: List[int], cost: List[int]) -> int:
+            rest = [gas[i] - cost[i] for i in range(len(gas))]
+            sum_val = sum(rest)
+            if sum_val < 0:
+                return -1
+            tank = 0
+            start = 0
+            for i in range(len(rest)):
+                tank += rest[i]
+                if tank < 0:
+                    start = i + 1
+                    tank = 0
+            return start if start != len(rest) else 0
+            
+    ```
+
+## 06.27
+
+### /// 645. Set Mismatch
+
+### !!! 15. 3Sum
+
+*   Time: $O(n^2)$ (`sort()` $O(n\log n)$)
+
+*   ```python
+    class Solution:
+        def two_sum(self, nums, start, target):
+            left = start
+            right = len(nums) - 1
+            result = []
+            while left < right:
+                left_val = nums[left]
+                right_val = nums[right]
+                sum_val = left_val + right_val
+                if  sum_val == target:
+                    result.append([-target, left_val, right_val])
+                    while left < right and nums[left] == left_val:
+                        left += 1
+                    while left < right and nums[right] == right_val:
+                        right -= 1
+                elif sum_val < target:
+                    while left < right and nums[left] == left_val:
+                        left += 1
+                elif sum_val > target:
+                    while left < right and nums[right] == right_val:
+                        right -= 1
+            return result
+            
+        def threeSum(self, nums: List[int]) -> List[List[int]]:
+            result = []
+            size = len(nums)
+            nums.sort()
+            i = 0
+            while i < size:
+                cur_i = nums[i]
+                temp_result = self.two_sum(nums, i + 1, -cur_i) 
+                result += temp_result
+                while i < size and nums[i] == cur_i:
+                    i += 1
+            return result
+            
+    ```
+
+
+
+### +++ 1288. Remove Covered Intervals
+
+*   ```python
+    class Solution:
+        def removeCoveredIntervals(self, intervals: List[List[int]]) -> int:
+            # sort key_1: start ascending; key_2: end descending
+            intervals.sort(key=lambda x: (x[0], -x[1]))
+            start, end = intervals[0]
+            size = len(intervals)
+            count = 0
+            for i in range(1, size):
+                left, right = intervals[i]
+                # cover
+                if start <= left and end >= right:
+                    count += 1
+                # intersect
+                elif left <= end and right >= end:
+                    end = right
+                # not itersect
+                elif left > end:
+                    start = left
+                    end = right
+            return size - count
+                
+    ```
+
+
+
+### 56. Merge Intervals
+
+*   From last problem:
+
+    *   ```python
+        class Solution:
+            def merge(self, intervals: List[List[int]]) -> List[List[int]]:
+                intervals.sort(key=lambda x: (x[0], -x[1]))
+                start_mark, end_mark = intervals[0]
+                result = []
+                start, end = 0, 0
+                for i in range(1, len(intervals)):
+                    start, end = intervals[i]
+                    # cover
+                    if start_mark <= start and end <= end_mark:
+                        continue
+                    # intersect
+                    elif start <= end_mark <= end:
+                        end_mark = end
+                    # not intersect
+                    elif end_mark < start:
+                        result.append([start_mark, end_mark])
+                        start_mark, end_mark = start, end
+                result.append([start_mark, end_mark])
+                return result
+            
+        ```
+
+    *   
+
+*   ```python
+    class Solution:
+        def merge(self, intervals: List[List[int]]) -> List[List[int]]:
+            intervals.sort(key=lambda x: x[0])
+            result = []
+            start_mark, end_mark = intervals[0]
+            for i in range(1, len(intervals)):
+                start, end = intervals[i]
+                if start > end_mark:
+                    result.append([start_mark, end_mark])
+                    start_mark, end_mark = start, end
+                else:
+                    end_mark = max(end, end_mark)
+            result.append([start_mark, end_mark])
+            return result
+            
+    ```
+
+*   
+
+
+
+### 
+
+
+
+
+
