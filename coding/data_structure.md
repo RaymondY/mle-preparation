@@ -6,6 +6,14 @@
     *   `while` determines when it ends.
     *   `left = mid + 1 or mid` (`right = mid - 1 or mid`) depend on the search interval.
     *   `mid = left + ((right - left) >> 1)`: prevent int overflow.
+    *   !!! **For even \# interval, the open one returns the latter position; the closed one returns the former position**
+        *   **For open interval,  returning the latter position means the left is the \# that less than target!**
+            *   **Left boundary: left == right && return left or right if possible (the last op is right = mid, where mid == right == left, and we want mid)**
+            *   **Right boundary: left == right && return left - 1 or right - 1 if possible (the last op is left = mid + 1, where mid == right == left, and we want mid)**
+        *   **For closed interval, ...**
+            *   **Left boundary: left == right + 1 && return right + 1 or left if possible (the last op is right = mid - 1, where mid == right == left, and we want mid)**
+            *   **Right boundary: left - 1 == right && return right or left - 1 if possible (the last op is left = mid + 1, where mid == right == left, and we want mid)**
+    *   
 *   PreSum
 *   *Monotonic Stack* (increasing or decreasing)
 *   Monotonic Queue
