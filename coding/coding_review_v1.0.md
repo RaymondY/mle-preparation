@@ -324,23 +324,469 @@
 
 ### Sliding Window
 
+#### 3. Longest Substring Without Repeating Characters
+
+*   ![image-20220630110716755](coding_review_v1.0.assets/image-20220630110716755.png)
+
+*   Thoughts:
+
+    *   We need to traverse the string $O(n)$
+    *   can we traverse only once?
+    *   we need a hashset window, whose find func cost $O(1)$
+    *   we need left and right pointers /marks.
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def lengthOfLongestSubstring(self, s: str) -> int:
+                window = set()
+                left = right = 0
+                size = len(s)
+                result = 0
+                while right < size:
+                    cur_char = s[right]
+                    if cur_char not in window:
+                        window.add(cur_char)
+                        right += 1
+                        continue
+                    # cur_char is the repeating one
+                    result = max(result, (right - 1) - left + 1)
+                    while s[left] != cur_char:
+                        window.remove(s[left])
+                        left += 1
+                    window.remove(s[left])
+                    left += 1
+                result = max(result, right - left)
+                return result
+        
+        ```
+
+    *   
+
+#### 76. Minimum Window Substring
+
+*   ![image-20220630112352177](coding_review_v1.0.assets/image-20220630112352177.png)![image-20220630121740123](coding_review_v1.0.assets/image-20220630121740123.png)
+
+*   Thoughts: 
+
+    *   We need a dictionary of t
+    *   So we first build a hash map (char: number)
+    *   How can we find the min substring by travesing only once
+    *   left and right pointers, create a window to record current string in s.
+    *   We need a valid num to meet the number of char.
+    *   The diff is once we meet the req, we need to shrink the left then we can get the result.
+    *   $O(n+m)$ for n, we visit each char in s twice at most.
+
+*   !!! Solution:
+
+    *   ```python
+        class Solution:
+            def add_to_map(self, char: str, req: dict):
+                if char not in req:
+                    req[char] = 1
+                elif char in req:
+                    req[char] += 1
+                
+            def minWindow(self, s: str, t: str) -> str:
+                req = dict()
+                for char in t:
+                    self.add_to_map(char, req)
+                req_size = len(req)
+                    
+                window = dict()
+                left_mark, size_mark = 0, len(s) + 1
+                left = right = 0
+                valid = 0
+                
+                while right < len(s):
+                    char_right = s[right]
+                    if char_right in req:
+                        self.add_to_map(char_right, window)
+                        if window[char_right] == req[char_right]:
+                            valid += 1
+                    # left need shrink?
+                    while valid == req_size:
+                        # update result
+                        # will be removed
+                        char_left = s[left]
+                        if char_left in req:
+                            if (window[char_left] == req[char_left]):
+                                if (right - left + 1) < size_mark:
+                                    left_mark = left
+                                    size_mark = right - left + 1
+                                valid -= 1
+                            window[char_left] -= 1
+                        left += 1
+                    right += 1
+                    
+                if size_mark > len(s):
+                    return ""
+                
+                return s[left_mark: left_mark + size_mark]
+            
+        ```
+
+    *   
+
+#### 438. Find All Anagrams in a String
+
+*   ![image-20220630154455151](coding_review_v1.0.assets/image-20220630154455151.png)
+
+*   Thoughts:
+
+    *   the order of p's letters is not important, so we store them in a hash map (letter: number)
+    *   we traverse s with left and right pointers. The right one keep moving, and shrink the left one when the requirements meet.
+    *   !!! **Note this one is different. the length of window is fixed.** 
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def hash_add(self, hashmap: dict, key: str):
+                if key not in hashmap:
+                    hashmap[key] = 1
+                else:
+                    hashmap[key] += 1
+                
+            def findAnagrams(self, s: str, p: str) -> List[int]:
+                need = dict()
+                for char in p:
+                    self.hash_add(need, char)
+                
+                left = right = 0
+                window = dict()
+                result = []
+                need_num = len(need)
+                valid = 0
+                
+                while right < len(s):
+                    # for right pointer
+                    char_right = s[right]
+                    if char_right in need:
+                        self.hash_add(window, char_right)
+                        if window[char_right] == need[char_right]:
+                            valid += 1
+                    # for left pointer
+                    while right - left + 1 >= len(p):
+                        char_left = s[left]
+                        if valid == need_num:
+                            result.append(left)
+                        if char_left in need:
+                            if window[char_left] == need[char_left]:
+                                valid -= 1
+                            window[char_left] -= 1
+                        left += 1
+                    right += 1
+                return result
+                
+        ```
+
+    *   
+
+#### 567. Permutation in String
+
+*   ![image-20220630161435208](coding_review_v1.0.assets/image-20220630161435208.png)
+
+*   Thoughts:
+
+    *   Permutation, in other words, the order is not important, so I will create a hashmap "need" for s1
+    *   left and right pointers traverse s2 with a window, find out whether window meets need.
+    *   the size of window is Len(s1)
+    *   I will write a func for add letters to hashmap.
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def hash_add(self, hashmap: dict, key: str):
+                if key in hashmap:
+                    hashmap[key] += 1
+                else:
+                    hashmap[key] = 1
+                
+            def checkInclusion(self, s1: str, s2: str) -> bool:
+                need = dict()
+                for char in s1:
+                    self.hash_add(need, char)
+                
+                left = right = 0
+                valid = 0
+                need_num = len(need)
+                window = dict()
+                
+                while right < len(s2):
+                    char_right = s2[right]
+                    if char_right in need:
+                        self.hash_add(window, char_right)
+                        if window[char_right] == need[char_right]:
+                            valid += 1
+                    
+                    if right - left + 1 == len(s1):
+                        char_left = s2[left]
+                        if valid == need_num:
+                            return True
+                        if char_left in need:
+                            if window[char_left] == need[char_left]:
+                                valid -= 1
+                            window[char_left] -= 1
+                        left += 1
+                    right += 1
+                
+                return False
+            
+        ```
+
+    *   
+
+#### 239. Sliding Window Maximum
+
+*   ![image-20220630172018030](coding_review_v1.0.assets/image-20220630172018030.png)
+
+*   Thoughts:
+
+    *   If we simplely move the window and find the max for each window, it cost $O(k * (n - k + 1))$. the worst one will be $O(n^2)$
+    *   the window moves only one position, try to figure out how to reuse the infomation from the last movement.
+    *   From the example, it seems that we need to know the descending order.
+    *   A fact: a big item will overwhelm all smaller elements in the front of it. So we can crash them.
+    *   A queue can meet the requirements. 
+    *   Here is a problem, some great numbers should get removed if they are not in the window: remove the first item if it is in the queue before we move the window.
+    *   **Note we cant smash the same val**
+    *   *this is called monotonic stack*
+
+*   /// Solution:
+
+    *   ```python
+        from collections import deque
+        class Solution:
+            def queue_add(self, queue: deque, val: int):
+                # Note we cant smash the same val
+                # it should be remove in line 19 and 20.
+                while queue and queue[-1] < val:
+                    queue.pop()
+                queue.append(val)
+                
+            def maxSlidingWindow(self, nums: List[int], k: int) -> List[int]:
+                queue = deque()
+                # init
+                for i in range(k - 1):
+                    self.queue_add(queue, nums[i])
+                result = []
+                for i in range(k - 1, len(nums)):
+                    self.queue_add(queue, nums[i])
+                    result.append(queue[0])
+                    if queue and queue[0] == nums[i + 1 - k]:
+                        queue.popleft()
+                    
+                return result
+            
+
+### Else
+
+#### 16. 
+
+#### 26. 
+
+#### 27. 
+
+#### 283. 
+
+#### 1099. 
+
+#### 11. 
+
+#### 42. 
+
+#### 986. 
+
+#### 15.
+
+#### 18. 
+
+#### 259.
+
+
+
+## Linked List - Double Pointers
+
+### 2. Add Two Numbers
+
+*   ![image-20220630230951963](coding_review_v1.0.assets/image-20220630230951963.png)
+
+*   Thoughts:
+
+    *   Traverse the two linked list at the same time. Since the digits are stored in reverse order, we can add each node and store the carry.
+    *   And we create node for result in the same time.
+    *   They may have different length. join the rest of it and dont forget the carry reminded.
+    *   ![image-20220630232139692](coding_review_v1.0.assets/image-20220630232139692.png)
+    *   Note that after traversing l1 and l2, carry could be 1.
+
+*   Solution:
+
+    *   ```python
+        # Definition for singly-linked list.
+        # class ListNode:
+        #     def __init__(self, val=0, next=None):
+        #         self.val = val
+        #         self.next = next
+        class Solution:
+            def addTwoNumbers(self, l1: Optional[ListNode], l2: Optional[ListNode]) -> Optional[ListNode]:
+                carry = 0
+                head = ListNode()
+                dummy = head
+                while l1 and l2:
+                    val = l1.val + l2.val + carry
+                    carry = 1 if val >= 10 else 0
+                    head.next = ListNode(val % 10)
+                    head = head.next
+                    l1 = l1.next
+                    l2 = l2.next
+                while l1:
+                    if carry != 0:
+                        val = l1.val + carry
+                        carry = 1 if val >= 10 else 0
+                        head.next = ListNode(val % 10)
+                        head = head.next
+                        l1 = l1.next
+                    elif carry == 0:
+                        head.next = l1
+                        break
+                while l2:
+                    if carry != 0:
+                        val = l2.val + carry
+                        carry = 1 if val >= 10 else 0
+                        head.next = ListNode(val % 10)
+                        head = head.next
+                        l2 = l2.next
+                    elif carry == 0:
+                        head.next = l2
+                        break
+                if carry == 1:
+                    while head.next:
+                        head = head.next
+                    head.next = ListNode(1)
+                
+                return dummy.next
+                
+        ```
+
+    *   
+
+### 19. Remove Nth Node From End of List
+
+*   ![image-20220630232401337](coding_review_v1.0.assets/image-20220630232401337.png)
+*   Thoughts:
+*   Solution:
+
+### 21. 
+
 *   
 *   Thoughts:
 *   Solution:
 
-#### 3. 
+### 23. 
 
-#### 76. 
+*   
+*   Thoughts:
+*   Solution:
 
-#### 438. 
+### 141. 
 
-#### 567. 
+*   
+*   Thoughts:
+*   Solution:
 
-#### 239. 
+### 142. 
 
-### Else
+*   
+*   Thoughts:
+*   Solution:
 
-## Linked List - Double Pointers
+### 160. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+### 876. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+### 25. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+### 83. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+### 92. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+### 234.
+
+*   
+*   Thoughts:
+*   Solution:
+
+## Prefix Sum
+
+## Differential Array
+
+## Queue / Stack
+
+## Binary Heap
+
+## Data Structure Design
+
+
+
+# Tree and Graph
+
+## Binary Tree
+
+## Binary Search Tree
+
+## Graph
+
+
+
+# Search
+
+## Backtrack
+
+## DFS
+
+## BFS
+
+
+
+# Dynamic Programming
+
+## 1D DP
+
+## 2D DP
+
+## Knapsack Problem
+
+
+
+# Else
+
+## Math
+
+## Interval
+
+
 
 
 
