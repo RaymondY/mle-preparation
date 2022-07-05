@@ -675,70 +675,588 @@
 ### 19. Remove Nth Node From End of List
 
 *   ![image-20220630232401337](coding_review_v1.0.assets/image-20220630232401337.png)
+
 *   Thoughts:
+
+    *   At least we need to traverse the linked list, but we cant go back I think, it is time consuming.
+    *   We can build two pointers slow and fast, and let the fast n nodes away from slow.
+    *   Since we need to link father node and child node, we better let the slow.next be the one should be deleted.
+
 *   Solution:
 
-### 21. 
+    *   ```python
+        # Definition for singly-linked list.
+        # class ListNode:
+        #     def __init__(self, val=0, next=None):
+        #         self.val = val
+        #         self.next = next
+        class Solution:
+            def removeNthFromEnd(self, head: Optional[ListNode], n: int) -> Optional[ListNode]:
+                dummy = ListNode()
+                dummy.next = head
+                slow = fast = dummy
+                for i in range(n):
+                    fast = fast.next
+                while fast.next:
+                    slow = slow.next
+                    fast = fast.next
+                # we need to delete slow.next
+                child = slow.next.next
+                slow.next = child
+                
+                return dummy.next
+        
+        ```
 
-*   
-*   Thoughts:
+    *   
+
+### 21. Merge Two Sorted Lists
+
+*   ![image-20220701120127125](coding_review_v1.0.assets/image-20220701120127125.png)
+
+*   Thoughts: 
+
+    *   cause they are both sorted. build a pointer for each of them and compare the pointers. move the smaller one.
+    *   when one pointer reach the end, joint the other one to the end of result list.
+
 *   Solution:
 
-### 23. 
+    *   ```python
+        # Definition for singly-linked list.
+        # class ListNode:
+        #     def __init__(self, val=0, next=None):
+        #         self.val = val
+        #         self.next = next
+        class Solution:
+            def mergeTwoLists(self, list1: Optional[ListNode], list2: Optional[ListNode]) -> Optional[ListNode]:
+                pointer1 = list1
+                pointer2 = list2
+                dummy = head = ListNode()
+                while pointer1 and pointer2:
+                    val1 = pointer1.val
+                    val2 = pointer2.val
+                    if val1 <= val2:
+                        head.next = pointer1
+                        pointer1 = pointer1.next
+                    elif val2 < val1:
+                        head.next = pointer2
+                        pointer2 = pointer2.next
+                    head = head.next
+                if pointer1:
+                    head.next = pointer1
+                if pointer2:
+                    head.next = pointer2
+                    
+                return dummy.next
+            
+        ```
 
-*   
+    *   !!! Recursive one
+
+    *   ```python
+        class Solution:
+            def mergeTwoLists(self, l1: Optional[ListNode], l2: Optional[ListNode]) -> Optional[ListNode]:
+                if l1 is None:
+                    return l2
+                if l2 is None:
+                    return l1
+                if l1.val < l2.val:
+                    l1.next = self.mergeTwoLists(l1.next, l2)
+                    return l1
+                else:
+                    l2.next = self.mergeTwoLists(l1, l2.next)
+                    return l2
+                
+        ```
+
+    *   
+
+### 23. Merge k Sorted Lists
+
+*   ![image-20220701140712667](coding_review_v1.0.assets/image-20220701140712667.png)
+
 *   Thoughts:
+
+    *   Similar to merge 2 sorted lists
+    *   The point is how we can compare k pointers fast.
+    *   !!! utilize the data structure priority queue / the min heap
+
 *   Solution:
 
-### 141. 
+    *   Time $O(n\log k)$
 
-*   
-*   Thoughts:
+    *   ```python
+        # Definition for singly-linked list.
+        # class ListNode:
+        #     def __init__(self, val=0, next=None):
+        #         self.val = val
+        #         self.next = next
+        from queue import PriorityQueue
+        
+        class Solution:
+            def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+                # !!!
+                setattr(ListNode, "__lt__", lambda self, other: self.val <= other.val)
+                
+                dummy = head = ListNode()
+                pq = PriorityQueue()
+                
+                for lst in lists:
+                    if lst != None:
+                        pq.put(lst)
+                
+                while not pq.empty():
+                    head.next = pq.get()
+                    head = head.next
+                    if head.next != None:
+                        pq.put(head.next)
+                
+                return dummy.next
+                
+        ```
+
+    *   I think we can also apply divide and conquer strategy. it is also $O(n \log k)$
+
+### 141. Linked List Cycle
+
+*   **Follow up:** Can you solve it using `O(1)` (i.e. constant) memory?
+
 *   Solution:
 
-### 142. 
+    *   ```python
+        class Solution:
+            def hasCycle(self, head: Optional[ListNode]) -> bool:
+                slow = fast = head
+                while fast and fast.next :
+                    slow = slow.next
+                    fast = fast.next.next
+                    if slow == fast:
+                        return True
+                return False
+                
+        ```
 
-*   
+    *   
+
+### 142. Linked List Cycle II
+
+*   ![image-20220701150728459](coding_review_v1.0.assets/image-20220701150728459.png)
+
 *   Thoughts:
+
+    *   With $O(1)$ space complexity to find whether there is a cycle, we use fast and slow pointers.
+    *   To find the position, we need to dig into step they move.
+    *   In the most cases, they won't meet at the right position
+    *   After first meeting, put one pointer at the start node, move k - m steps at the same pace until they meet again.
+
 *   Solution:
 
-### 160. 
+    *   ```python
+        class Solution:
+            def detectCycle(self, head: Optional[ListNode]) -> Optional[ListNode]:
+                slow = fast = head
+                has_cycle = False
+                while fast and fast.next:
+                    slow = slow.next
+                    fast = fast.next.next
+                    if slow == fast:
+                        has_cycle = True
+                        break
+                if not has_cycle:
+                    return None
+                slow = head
+                while slow != fast:
+                    slow = slow.next
+                    fast = fast.next
+                return slow
+                
+        ```
 
-*   
+    *   
+
+### 160. Intersection of Two Linked Lists
+
+*   ![image-20220701160004579](coding_review_v1.0.assets/image-20220701160004579.png)
+
 *   Thoughts:
+
+    *   The difficulty is that they may not has the same size.
+    *   Try to let two pointers meet after moving same steps.
+    *   If we move m + n steps and still not meet, they won't meet.
+
 *   Solution:
 
-### 876. 
+    *   Note the condition order is important
 
-*   
+    *   ```python
+        # Definition for singly-linked list.
+        # class ListNode:
+        #     def __init__(self, x):
+        #         self.val = x
+        #         self.next = None
+        
+        class Solution:
+            def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> Optional[ListNode]:
+                pointerA = headA
+                pointerB = headB
+                # -1 means non-visited
+                sizeA = sizeB = -1
+                step = 1
+                while True:
+                    if not pointerA and sizeA == -1:
+                        pointerA = headB
+                        sizeA = step - 1
+                    if not pointerB and sizeB == -1:
+                        pointerB = headA
+                        sizeB = step - 1
+                    if pointerA == pointerB and pointerA:
+                        return pointerA
+                    if (step - 1) == (sizeA + sizeB):
+                        return None
+                    pointerA = pointerA.next
+                    pointerB = pointerB.next
+                    step += 1
+                    
+        ```
+
+    *   /// this one is much clear
+
+    *   ```python
+        # Definition for singly-linked list.
+        # class ListNode:
+        #     def __init__(self, x):
+        #         self.val = x
+        #         self.next = None
+        
+        class Solution:
+            def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> Optional[ListNode]:
+                pointerA = headA
+                pointerB = headB
+                while pointerA != pointerB:
+                    if not pointerA:
+                        pointerA = headB
+                    else:
+                        pointerA = pointerA.next
+                    if not pointerB:
+                        pointerB = headA
+                    else:
+                        pointerB = pointerB.next
+                return pointerA
+        
+        ```
+
+    *   
+
+### 876. Middle of the Linked List
+
+*   ![image-20220701162441944](coding_review_v1.0.assets/image-20220701162441944.png)
+
 *   Thoughts:
+
+    *   Since for even \# of nodes we need the second middle node, it decide the end condition.
+
 *   Solution:
 
-### 25. 
+    *   ```python
+        class Solution:
+            def middleNode(self, head: Optional[ListNode]) -> Optional[ListNode]:
+                slow = fast = head
+                # not fast: even
+                # not fast.next: ood
+                while fast and fast.next:
+                    slow = slow.next
+                    fast = fast.next.next
+                return slow
+                
+        ```
 
-*   
+    *   
+
+### 25. Reverse Nodes in k-Group
+
+*   ![image-20220704151939800](coding_review_v1.0.assets/image-20220704151939800.png)
+
 *   Thoughts:
+
+    *   Find a way with $O(1)$ space complexity
+    *   Think about the case with k > 2
+    *   How can I know the \# of nodes is not a multiple of k?
+        *   Record the start node, once traverse k nodes, reverse the list.
+    *   <img src="coding_review_v1.0.assets/IMG_A8DEE08DB5E4-1.jpeg" alt="IMG_A8DEE08DB5E4-1" style="zoom: 33%;" />
+
 *   Solution:
 
-### 83. 
+    *   ```python
+        # Definition for singly-linked list.
+        # class ListNode:
+        #     def __init__(self, val=0, next=None):
+        #         self.val = val
+        #         self.next = next
+        class Solution:
+            def reverse_list(self, start: ListNode, end: ListNode, k: int):
+                pre = start.next
+                start.next = end
+                
+                node = pre.next
+                pre.next = end.next
+                start = pre
+                
+                for i in range(1, k):
+                    temp = node.next
+                    node.next = pre
+                    pre = node
+                    node = temp
+                return start
+                
+            def reverseKGroup(self, head: Optional[ListNode], k: int) -> Optional[ListNode]:
+                dummy = ListNode()
+                dummy.next = head
+                count = 0
+                start = dummy
+                end = None
+                while head:
+                    count += 1
+                    if count == k:
+                        end = head
+                        head = start = self.reverse_list(start, end, k)
+                        count = 0
+                    head = head.next
+                return dummy.next
+                
+        ```
 
-*   
+*   Other: !!! Recursive
+
+    *   ```python
+        # Definition for singly-linked list.
+        # class ListNode:
+        #     def __init__(self, val=0, next=None):
+        #         self.val = val
+        #         self.next = next
+        class Solution:
+            def reverse_list(self, start: ListNode, k: int):
+                pre = None
+                cur = nxt = start
+                for i in range(k):
+                    nxt = cur.next
+                    cur.next = pre
+                    pre = cur
+                    cur = nxt
+                return pre
+                
+            def reverseKGroup(self, head: Optional[ListNode], k: int) -> Optional[ListNode]:
+                if not head:
+                    return None
+                start = end = head
+                for i in range(k):
+                    if not end:
+                        return start
+                    end = end.next
+                new_head = self.reverse_list(start, k)
+                start.next = self.reverseKGroup(end, k)
+                return new_head
+                
+        ```
+
+    *   
+
+### 83. Remove Duplicates from Sorted List
+
+*   ![image-20220704163437104](coding_review_v1.0.assets/image-20220704163437104.png)
+
 *   Thoughts:
+
+    *   The link is sorted, so once we find a new val, delete all following nodes with same val.
+    *   `-100 <= Node.val <= 100` init val_mark = -1000.
+    *   and we can continue find the .next until we find the one different, then connect them.
+    *   note the last node_mark
+
 *   Solution:
 
-### 92. 
+    *   ```python
+        # Definition for singly-linked list.
+        # class ListNode:
+        #     def __init__(self, val=0, next=None):
+        #         self.val = val
+        #         self.next = next
+        class Solution:
+            def deleteDuplicates(self, head: Optional[ListNode]) -> Optional[ListNode]:
+                if not head:
+                    return None
+                dummy = head
+                value = head.val
+                node_mark = head
+                while head:
+                    if head.val != value:
+                        node_mark.next = head
+                        node_mark = head
+                        value = head.val
+                    head = head.next
+                # note the end
+                node_mark.next = None
+                return dummy
+                
+        ```
 
-*   
+    *   
+
+### 92. Reverse Linked List II
+
+*   ![image-20220704220341063](coding_review_v1.0.assets/image-20220704220341063.png)
 *   Thoughts:
+
+    *   First we find the node in the front of left
+
 *   Solution:
 
-### 234.
+    *   ```python
+        # Definition for singly-linked list.
+        # class ListNode:
+        #     def __init__(self, val=0, next=None):
+        #         self.val = val
+        #         self.next = next
+        class Solution:
+            def reverseBetween(self, head: Optional[ListNode], left: int, right: int) -> Optional[ListNode]:
+                dummy = ListNode()
+                dummy.next = head
+                pointer = dummy
+                for i in range(left - 1):
+                    pointer = pointer.next
+                # now the pointer is the father of left
+                before = pointer
+                pointer = pointer.next
+                new_end = pointer
+                pre = None
+                cur = nxt = pointer
+                for i in range(left, right + 1):
+                    nxt = cur.next
+                    cur.next = pre
+                    pre = cur
+                    cur = nxt
+                behind = cur
+                new_start = pre
+                # connect them
+                before.next = new_start
+                new_end.next = behind
+                
+                return dummy.next
+                
+        ```
 
-*   
+    *   
+
+
+### 234. Palindrome Linked List
+
+*   <img src="coding_review_v1.0.assets/image-20220704222156840.png" alt="image-20220704222156840" style="zoom:25%;" />
+
 *   Thoughts:
+
+    *   To decide whether a whole linked list, we utilize stack, FILO
+    *   How can we know when I or O. the point is we dont know the size, and the we can't decide it by stack.top()
+    *   Stack is not good
+    *   Use !!! fast-slow pointers to find the mid point, then reverse the right side list
+    *   Note odd or even cases
+    *   
+
 *   Solution:
+
+    *   ```python
+        # Definition for singly-linked list.
+        # class ListNode:
+        #     def __init__(self, val=0, next=None):
+        #         self.val = val
+        #         self.next = next
+        class Solution:
+            def isPalindrome(self, head: Optional[ListNode]) -> bool:
+                if not head.next:
+                    return True
+                # move the first step
+                slow = head
+                fast = head.next
+                while fast and fast.next:
+                    slow = slow.next
+                    fast = fast.next.next
+                # mark the mid pos
+                mid = slow
+                # reverse the list behind from mid
+                pre = None
+                cur = nxt = mid.next
+                while cur:
+                    nxt = cur.next
+                    cur.next = pre
+                    pre = cur
+                    cur = nxt
+                # pre is the new start
+                first = head
+                second = pre
+                while second:
+                    if first.val != second.val:
+                        return False
+                    first = first.next
+                    second = second.next
+                return True
+                
+        ```
+
+    *   
+
 
 ## Prefix Sum
+
+### 303. Range Sum Query - Immutable
+
+*   Solution: 
+
+    *   ```python
+        class NumArray:
+        
+            def __init__(self, nums: List[int]):
+                self.pre_sum = []
+                self.pre_sum.append(nums[0])
+                for i in range(1, len(nums)):
+                    self.pre_sum.append(nums[i] + self.pre_sum[i-1])
+                
+        
+            def sumRange(self, left: int, right: int) -> int:
+                sum_val = self.pre_sum[right]
+                if left > 0:
+                    sum_val -= self.pre_sum[left - 1]
+                return sum_val
+        
+        
+        # Your NumArray object will be instantiated and called as such:
+        # obj = NumArray(nums)
+        # param_1 = obj.sumRange(left,right)
+        
+        ```
+
+    *   
+
+### /// 304. Range Sum Query 2D - Immutable
+
+*   
+*   Thoughts: 
+    *   
+    *   
+*   Solution: 
+
+### !!!327. Count of Range Sum
+
+*   !!! 315 do this first
+
+*   ![image-20220705010933407](coding_review_v1.0.assets/image-20220705010933407.png)
+*   Thoughts: 
+    *   There are $n(n-1)/2$ possible ranges.
+    *   So if we compute each range, the time will be at least $O(n^2)$
+    *   How can we utilize info better? Sort? no, we need to keep the order
+*   Solution: 
+
+### 1352. 
+
+*   
+*   Thoughts: 
+*   Solution: 
 
 ## Differential Array
 
