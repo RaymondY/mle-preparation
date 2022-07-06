@@ -1252,17 +1252,329 @@
     *   How can we utilize info better? Sort? no, we need to keep the order
 *   Solution: 
 
-### 1352. 
+### 1352. Product of the Last K Numbers
 
-*   
 *   Thoughts: 
+
+    *   prefix to avoild $O(k)$ getProduct -> $O(1)$
+    *   how about add(0) -> clear the prefix list if we meet zero
+
 *   Solution: 
+
+    *   ```python
+        class ProductOfNumbers:
+        
+            def __init__(self):
+                self.prefix = []
+        
+            def add(self, num: int) -> None:
+                if num == 0:
+                    # the last k (before num) products are always zero.
+                    self.prefix.clear()
+                    return
+                if len(self.prefix) > 0:
+                    self.prefix.append(num * self.prefix[-1])
+                else:
+                    self.prefix.append(num)
+        
+            def getProduct(self, k: int) -> int:
+                size = len(self.prefix)
+                if k > size:
+                    return 0
+                if k == size:
+                    return self.prefix[-1]
+                if k < size:
+                    return int(self.prefix[-1] / self.prefix[-(k+1)])
+        
+        # Your ProductOfNumbers object will be instantiated and called as such:
+        # obj = ProductOfNumbers()
+        # obj.add(num)
+        # param_2 = obj.getProduct(k)
+        ```
+
+    *   
 
 ## Differential Array
 
+### 370.  
+
+*   
+*   Thoughts:
+*   Solution
+
+### 1094. Car Pooling
+
+*   ![image-20220705153342601](coding_review_v1.0.assets/image-20220705153342601.png)
+
+*   Thoughts:
+
+    *   for a trip, we need to add / minus a same number to a range of nums. so create a difference array, turn it to O(1) op. But we dont know the number of stations. we need to create a list(1001)
+
+*   Solution: 
+
+    *   ```python
+        class Solution:
+            def carPooling(self, trips: List[List[int]], capacity: int) -> bool:
+                diff = [0] * 1001
+                for num, start, end in trips:
+                    diff[start] += num
+                    diff[end] -= num
+                result = 0
+                for i in range(0, 1001):
+                    result += diff[i]
+                    if result > capacity:
+                        return False
+                return True
+                
+        ```
+
+    *   
+
+### 1109. Corporate Flight Bookings
+
+*   ![image-20220705155028892](coding_review_v1.0.assets/image-20220705155028892.png)
+
+*   Thoughts:
+
+    *   The repeative add for a range of array, apply diff array
+
+*   Solution
+
+    *   ```python
+        class Solution:
+            def corpFlightBookings(self, bookings: List[List[int]], n: int) -> List[int]:
+                # the index start from one
+                diff = [0] * (n + 1 + 1)
+                for start, end, seats in bookings:
+                    diff[start] += seats
+                    diff[end + 1] -= seats
+                result = [diff[1]]
+                for i in range(2, n + 1):
+                    result.append(result[i-1-1] + diff[i])
+                return result
+                
+        ```
+
+    *   
+
 ## Queue / Stack
 
+### 20.Valid Parentheses
+
+*   Thoughts:
+
+    *   A stack
+    *   Push ( { [, match ) } ]. 
+    *   Note that if the stack is not empty after we traverse the string, return False
+
+*   Solution
+
+    *   ```python
+        class Solution:
+            def isValid(self, s: str) -> bool:
+                stack = []
+                match = {'(': ')', '{': '}', '[': ']'}
+                for char in s:
+                    if char in match:
+                        stack.append(char)
+                    else:
+                        if not stack or match[stack.pop()] != char:
+                            return False
+                if stack:
+                    return False
+                return True
+                   
+        ```
+
+    *   
+
+### 921. Minimum Add to Make Parentheses Valid
+
+*   ![image-20220705164409651](coding_review_v1.0.assets/image-20220705164409651.png)
+
+*   Thoughts:
+
+    *   For each invalid '(' or ')', it needs an parenthesis.
+
+*   Solution
+
+    *   Space: O(n)
+
+    *   ```python
+        class Solution:
+            def minAddToMakeValid(self, s: str) -> int:
+                stack = []
+                result = 0
+                for char in s:
+                    if char == '(':
+                        stack.append(char)
+                    else:
+                        if not stack or stack[-1] != '(':
+                            result += 1
+                        else:
+                            stack.pop()
+                result += len(stack)
+                return result
+                
+        ```
+
+    *   Space O(1)
+
+    *   ```python
+        class Solution:
+            def minAddToMakeValid(self, s: str) -> int:
+                need = 0
+                req = 0
+                for char in s:
+                    if char == '(':
+                        need += 1
+                    else:
+                        need -= 1
+                        if need == -1:
+                            req += 1
+                            need = 0
+                return req + need
+                
+        ```
+
+    *   
+
+### 1541. Minimum Insertions to Balance a Parentheses String
+
+*   ![image-20220705165245029](coding_review_v1.0.assets/image-20220705165245029.png)
+
+*   Thoughts:
+
+    *   We need to keep the right one valid
+    *   case analysis:
+        *   if "(":
+            *   need a '))'
+        *   if ")":
+            *   if the next char is ')'
+            *   if the next char is not ')'
+
+*   Solution
+
+    *   ```python
+        class Solution:
+            def minInsertions(self, s: str) -> int:
+                # need represent the stack
+                need_right = 0
+                lack_left = 0
+                invalid = 0
+                i = 0
+                while i < len(s):
+                    if s[i] == '(':
+                        need_right += 1
+                    elif s[i] == ')':
+                        need_right -= 1
+                        if need_right < 0:
+                            need_right = 0
+                            lack_left += 1
+                        if i + 1 >= len(s) or s[i + 1] != ')':
+                            invalid += 1
+                        elif i + 1 < len(s) and s[i + 1] == ')':
+                            i += 1
+                    i += 1
+                return need_right * 2 + lack_left + invalid
+                
+        ```
+
+    *   
+
+### !!! 32. Longest Valid Parentheses
+
+*   ![image-20220705173037659](coding_review_v1.0.assets/image-20220705173037659.png)
+*   Thoughts:
+    *   Stack and two pointers? 
+    *   No! e.g. `"()(()"`
+    *   DP
+*   Solution
+
+### 71. Simplify Path
+
+*   ![image-20220705204144189](coding_review_v1.0.assets/image-20220705204144189.png)
+
+*   Thoughts:
+
+    *   travese the string, divide dir and fire by '/'
+    *   Stack
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def simplifyPath(self, path: str) -> str:
+                stack = []
+                for cur_dir in path.split('/'):
+                    if stack and cur_dir == '..':
+                        stack.pop()
+                    elif cur_dir not in ['', '.', '..']:
+                        stack.append(cur_dir)
+                return '/' + '/'.join(stack)
+               
+        ```
+
+    *   
+
+### 150. Evaluate Reverse Polish Notation
+
+*   ![image-20220705214901545](coding_review_v1.0.assets/image-20220705214901545.png)
+
+*   Thoughts:
+
+    *   Build a stack, once meet an op, stack pop the top 2 number, compute and push the result back.
+
+*   Solution
+
+    *   ```python
+        class Solution:
+            def evalRPN(self, tokens: List[str]) -> int:
+                stack = []
+                ops = ['+', '-', '*', '/']
+                for token in tokens:
+                    if token in ops:
+                        num2 = stack.pop()
+                        num1 = stack.pop()
+                        if token == '+':
+                            stack.append(num1 + num2)
+                        elif token == '-':
+                            stack.append(num1 - num2)
+                        elif token == '*':
+                            stack.append(num1 * num2)
+                        elif token == '/':
+                            stack.append(int(num1 / num2))
+                    else:
+                        stack.append(int(token))
+                return stack.pop()
+                
+        ```
+
+    *   
+
+### 225. Implement Stack using Queues
+
+*   
+*   Thoughts:
+*   Solution
+
+### 232. 
+
+*   
+*   Thoughts:
+*   Solution
+
+### 239. 
+
+*   
+*   Thoughts:
+*   Solution
+
 ## Binary Heap
+
+*   
+*   Thoughts:
+*   Solution
 
 ## Data Structure Design
 
