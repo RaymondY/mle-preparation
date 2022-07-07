@@ -1552,13 +1552,13 @@
 
     *   
 
-### 225. Implement Stack using Queues
+### /// 225. Implement Stack using Queues
 
 *   
 *   Thoughts:
 *   Solution
 
-### 232. 
+### /// 232. 
 
 *   
 *   Thoughts:
@@ -1570,13 +1570,9 @@
 *   Thoughts:
 *   Solution
 
-## Binary Heap
+## /// Binary Heap
 
-*   
-*   Thoughts:
-*   Solution
-
-## Data Structure Design
+## /// Data Structure Design
 
 
 
@@ -1584,7 +1580,825 @@
 
 ## Binary Tree
 
+*   **!!! 2 outline:**
+    *   **Traverse the Tree: DFS / BFS**
+    *   **Utilize the result of subtrees: DP**
+*   **The point is what we should do at a single tree node.**
+
+### 94. Binary Tree Inorder Traversal
+
+*   
+
+*   Thoughts:
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.inorder = []
+                
+            def traverse(self, root: Optional[TreeNode]):
+                if not root:
+                    return
+                self.traverse(root.left)
+                self.inorder.append(root.val)
+                self.traverse(root.right)
+                
+            def inorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
+                self.traverse(root)
+                return self.inorder
+                
+        ```
+
+    *   
+
+### 100. Same Tree
+
+*   
+
+*   Thoughts:
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def isSameTree(self, p: Optional[TreeNode], q: Optional[TreeNode]) -> bool:
+                if not p and not q:
+                    return True
+                elif (not p and q) or (p and not q):
+                    return False
+                elif (p and q) and (p.val != q.val):
+                    return False
+                # elif (p and q) and (p.val == q.val):
+                return self.isSameTree(p.left, q.left) and self.isSameTree(p.right, q.right)
+                
+        ```
+
+    *   
+
+### 102. Binary Tree Level Order Traversal
+
+*   
+
+*   Thoughts:
+
+*   Solution:
+
+    *   ```python
+        from collections import deque
+        class Solution:
+            def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
+                if not root:
+                    return []
+                queue = deque()
+                queue.append(root)
+                result = []
+                while queue:
+                    size = len(queue)
+                    level = []
+                    for i in range(size):
+                        cur = queue.popleft()
+                        level.append(cur.val)
+                        if cur.left:
+                            queue.append(cur.left)
+                        if cur.right:
+                            queue.append(cur.right)
+                    result.append(level)
+                return result
+            
+        ```
+
+    *   
+
+### /// 103. Binary Tree Zigzag Level Order Traversal
+
+*   
+
+*   Thoughts:
+
+    *   FILO -> stack, creat a new stack for each level
+    *   Queue append and pop from the different sides.
+
+*   Solution
+
+    *   ```python
+        # Definition for a binary tree node.
+        # class TreeNode:
+        #     def __init__(self, val=0, left=None, right=None):
+        #         self.val = val
+        #         self.left = left
+        #         self.right = right
+        from collections import deque
+        class Solution:
+            def zigzagLevelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
+                if not root:
+                    return []
+                result = []
+                queue = deque()
+                queue.append(root)
+                # 0: left -> right; 1: right -> left
+                # for cur level
+                direction = 0
+                while queue:
+                    size = len(queue)
+                    level = []
+                    for i in range(size):
+                        if direction == 0:
+                            cur = queue.popleft()
+                            level.append(cur.val)
+                            if cur.left:
+                                queue.append(cur.left)
+                            if cur.right:
+                                queue.append(cur.right)
+                        elif direction == 1:
+                            cur = queue.pop()
+                            level.append(cur.val)
+                            if cur.right:
+                                queue.appendleft(cur.right)
+                            if cur.left:
+                                queue.appendleft(cur.left)
+                    result.append(level)
+                    direction = 1 if direction == 0 else 0
+                return result
+                
+        ```
+
+    *   
+
+### 104. Maximum Depth of Binary Tree
+
+*   
+
+*   Thoughts:
+
+*   Solution:
+
+    *   DFS
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.depth = 0
+                
+            def traverse(self, root, depth):
+                if not root:
+                    self.depth = max(self.depth, depth - 1)
+                    return
+                self.traverse(root.left, depth + 1)
+                self.traverse(root.right, depth + 1)
+                
+            def maxDepth(self, root: Optional[TreeNode]) -> int:
+                self.traverse(root, 1)
+                return self.depth
+                
+        ```
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.depth = 0
+                
+            def traverse(self, root, depth):
+                if not root:
+                    return
+                self.depth = max(self.depth, depth + 1)
+                self.traverse(root.left, depth + 1)
+                self.traverse(root.right, depth + 1)
+                
+            def maxDepth(self, root: Optional[TreeNode]) -> int:
+                self.traverse(root, 0)
+                return self.depth
+                
+        ```
+
+    *   
+
+    *   !!! DFS (DP)
+
+    *   ```python
+        class Solution:
+            def maxDepth(self, root: Optional[TreeNode]) -> int:
+                if not root:
+                    return 0
+                left_max = self.maxDepth(root.left)
+                right_max = self.maxDepth(root.right)
+                return 1 + max(left_max, right_max)
+                
+        ```
+
+    *   BFS
+
+    *   ```python
+        from collections import deque
+        class Solution:
+            def maxDepth(self, root: Optional[TreeNode]) -> int:
+                if not root:
+                    return 0
+                queue = deque()
+                queue.append(root)
+                depth = 0
+                while queue:
+                    size = len(queue)
+                    depth += 1
+                    for i in range(size):
+                        cur = queue.popleft()
+                        if cur.left:
+                            queue.append(cur.left)
+                        if cur.right:
+                            queue.append(cur.right)
+                return depth
+                
+        ```
+
+    *   
+
+### 144. Binary Tree Preorder Traversal
+
+*   
+
+*   Thoughts:
+
+*   Solution
+
+    *   DFS
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.preorder = []
+                
+            def traverse(self, root):
+                if not root:
+                    return
+                self.preorder.append(root.val)
+                self.traverse(root.left)
+                self.traverse(root.right)
+                
+            def preorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
+                self.traverse(root)
+                return self.preorder
+            
+        ```
+
+    *   Subtree: DP
+
+    *   Space consuming
+
+### 543. Diameter of Binary Tree
+
+*   ![image-20220706150029304](coding_review_v1.0.assets/image-20220706150029304.png)
+
+*   Thoughts:
+
+    *   for each node, the longest path include the max_depth of left and right
+    *   need a function return max depth of the tree. - > DP
+    *   For each node, we have 2 choices (contain the root or not)
+    *   Or we can traverse the tree -> DFS
+
+*   Solution
+
+    *   DP (not good, cause we can solve the problem when we find the max_depth):
+
+    *   ```python
+        class Solution:
+            def max_depth(self, root) -> int:
+                if not root:
+                    return 0
+                left = self.max_depth(root.left)
+                right = self.max_depth(root.right)
+                return 1 + max(left, right)
+                
+            def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:
+                if not root:
+                    return 0
+                left = self.diameterOfBinaryTree(root.left)
+                right = self.diameterOfBinaryTree(root.right)
+                return max((self.max_depth(root.left) + self.max_depth(root.right)), max(left, right))
+            
+        ```
+
+    *   DFS (much better here)
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.diameter = 0
+                
+            def max_depth(self, root) -> int:
+                if not root:
+                    return 0
+                left = self.max_depth(root.left)
+                right = self.max_depth(root.right)
+                self.diameter = max(self.diameter, left + right)
+                return 1 + max(left, right)
+            
+            def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:
+                self.max_depth(root)
+                return self.diameter
+              
+        ```
+
+    *   
+
+### 105. Construct Binary Tree from Preorder and Inorder Traversal
+
+*   
+
+*   Thoughts:
+
+    *   **unique** values. !
+    *   use index as parameter, avoiding copy list
+    *   !!! `.index` can be replaced by check in a hashmap
+
+*   Solution
+
+    *   ```python
+        class Solution:
+            # closed interval
+            def build(self, preorder, pre_start, pre_end, inorder, in_start, in_end):
+                if pre_start > pre_end:
+                    return None
+                root_val = preorder[pre_start]
+                root = ListNode(root_val)
+                in_mid = inorder.index(root_val)
+                left_size = in_mid - 1 - in_start + 1
+                right_size = in_end - (in_mid + 1) + 1
+                root.left = self.build(preorder, pre_start + 1, pre_start + 1 + left_size - 1, inorder, in_start, in_mid - 1)
+                root.right = self.build(preorder, pre_end - right_size + 1, pre_end, inorder, in_mid + 1, in_end)
+                return root
+                
+            def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
+                size = len(preorder)
+                return self.build(preorder, 0, size - 1, inorder, 0, size - 1)
+                
+        ```
+
+    *   
+
+### 106. Construct Binary Tree from Inorder and Postorder Traversal
+
+*   
+
+*   Thoughts:
+
+*   Solution
+
+    *   ```python
+        class Solution:
+            def build(self, inorder, in_start, in_end, postorder, post_start, post_end):
+                if in_start > in_end:
+                    return None
+                root_val = postorder[post_end]
+                root = ListNode(root_val)
+                in_mid = inorder.index(root_val)
+                left_size = in_mid - 1 - in_start + 1
+                right_size = in_end - (in_mid + 1) + 1
+                root.left = self.build(inorder, in_start, in_mid - 1, postorder, post_start, post_start + left_size - 1)
+                root.right = self.build(inorder, in_mid + 1, in_end, postorder, post_end - 1 - right_size + 1, post_end - 1)
+                return root
+                
+            def buildTree(self, inorder: List[int], postorder: List[int]) -> Optional[TreeNode]:
+                size = len(inorder)
+                return self.build(inorder, 0, size - 1, postorder, 0, size - 1)
+                
+        ```
+
+    *   !!! not a universal way
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.hashmap = {}
+                self.inorder = []
+                self.postorder = []
+                
+            def build(self, start, end):
+                if start > end:
+                    return None
+                node_value = self.postorder.pop()
+                node_index = self.hashmap[node_value]
+                
+                # right before left!
+                right = self.build(node_index + 1, end)
+                left = self.build(start, node_index - 1)
+                
+                return TreeNode(node_value, left, right)
+                
+            def buildTree(self, inorder: List[int], postorder: List[int]) -> Optional[TreeNode]:
+                self.inorder, self.postorder = inorder, postorder
+                self.hashmap = {}  
+                for index, value in enumerate(inorder):
+                    self.hashmap[value] = index
+                    
+                return self.build(0, len(self.inorder) - 1)
+                
+        ```
+
+    *   
+
+### 654. Maximum Binary Tree
+
+*   
+
+*   Thoughts:
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def find_max(self, nums, start, end):
+                max_i, max_val = -1, -1
+                for i in range(start, end + 1):
+                    if nums[i] > max_val:
+                        max_i = i
+                        max_val = nums[i]
+                return max_i, max_val
+            
+            def construct(self, nums, start, end):
+                if start > end:
+                    return None
+                index, root_val = self.find_max(nums, start, end)
+                root = ListNode(root_val)
+                root.left = self.construct(nums, start, index - 1)
+                root.right = self.construct(nums, index + 1, end)
+                return root
+                
+            def constructMaximumBinaryTree(self, nums: List[int]) -> Optional[TreeNode]:
+                return self.construct(nums, 0, len(nums) - 1)
+                    
+        ```
+
+    *   
+
+### 107. Binary Tree Level Order Traversal II
+
+*   Same one
+*   Thoughts:
+*   Solution
+
+### 111. Minimum Depth of Binary Tree
+
+*   
+
+*   Thoughts:
+
+    *   BFS is better here, it can stop earlier 
+
+*   Solution
+
+    *   ```python
+        from collections import deque
+        class Solution:
+            def minDepth(self, root: Optional[TreeNode]) -> int:
+                if not root:
+                    return 0
+                queue = deque()
+                queue.append(root)
+                depth = 0
+                while queue:
+                    size = len(queue)
+                    depth += 1
+                    for i in range(size):
+                        cur = queue.popleft()
+                        if not cur.left and not cur.right:
+                            return depth
+                        if cur.left:
+                            queue.append(cur.left)
+                        if cur.right:
+                            queue.append(cur.right)
+                return depth
+                
+        ```
+
+    *   
+
+### /// 114. Flatten Binary Tree to Linked List
+
+*   ![image-20220706172306300](coding_review_v1.0.assets/image-20220706172306300.png)
+
+*   Thoughts:
+
+    *   **Actually this is postorder!**
+
+    *   1.   DP: a function return the start node and end node. / 
+
+        *   Selection: if (not) root.left and if (not) root.right (4 selections)
+
+    *   2.   Traversal solution is similar
+
+    *   
+
+*   Solution
+
+    *   DP / postorder
+
+    *   ```python
+        class Solution:
+            def flatten_helper(self, root):
+                if not root:
+                    return None, None
+                left_start, left_end = self.flatten_helper(root.left)
+                right_start, right_end = self.flatten_helper(root.right)
+                root.left = None
+                if left_start and right_start:
+                    root.right = left_start
+                    left_end.right = right_start
+                    return root, right_end
+                elif not left_start and right_start:
+                    root.right = right_start
+                    return root, right_end
+                elif left_start and not right_start:
+                    root.right = left_start
+                    return root, left_end
+                else:
+                    return root, root
+                
+            def flatten(self, root: Optional[TreeNode]) -> None:
+                """
+                Do not return anything, modify root in-place instead.
+                """
+                self.flatten_helper(root)
+                
+        ```
+
+    *   Traversal!!!
+
+    *   ```python
+        # Definition for a binary tree node.
+        # class TreeNode:
+        #     def __init__(self, val=0, left=None, right=None):
+        #         self.val = val
+        #         self.left = left
+        #         self.right = right
+        class Solution:
+            def flatten(self, root: Optional[TreeNode]) -> None:
+                """
+                Do not return anything, modify root in-place instead.
+                """
+                if not root:
+                    return
+                self.flatten(root.left)
+                self.flatten(root.right)
+                
+                left = root.left
+                right = root.right
+                
+                root.left = None
+                root.right = left
+                
+                temp = root
+                while temp.right:
+                    temp = temp.right
+                temp.right = right
+                
+        ```
+
+    *   
+
+### 116. Populating Next Right Pointers in Each Node
+
+*   ![image-20220706181744005](coding_review_v1.0.assets/image-20220706181744005.png)
+
+*   Thoughts:
+
+    *   a perfect binary tree
+    *   BFS connect to previous node
+
+*   Solution
+
+    *   ```python
+        from collections import deque
+        class Solution:
+            def connect(self, root: 'Optional[Node]') -> 'Optional[Node]':
+                if not root:
+                    return None
+                dummy = root
+                queue = deque()
+                queue.append(root)
+                while queue:
+                    size = len(queue)
+                    cur = queue.popleft()
+                    # this is a perfect bt
+                    if cur.left:
+                        queue.append(cur.left)
+                        queue.append(cur.right)
+                    pre = cur
+                    for i in range(1, size):
+                        cur = queue.popleft()
+                        # this is a perfect bt
+                        if cur.left:
+                            queue.append(cur.left)
+                            queue.append(cur.right)
+                        pre.next = cur
+                        pre = cur
+                return dummy
+                
+        ```
+
+    *   Other? ///
+
+### 226. Invert Binary Tree
+
+*   
+
+*   Thoughts:
+
+    *   Postorder / DP
+
+*   Solution
+
+    *   ```python
+        class Solution:
+            def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+                if not root:
+                    return None
+                left = self.invertTree(root.left)
+                right = self.invertTree(root.right)
+                root.left = right
+                root.right = left
+                return root
+              
+        ```
+
+    *   
+
+### 145. Binary Tree Postorder Traversal
+
+*   Given the `root` of a binary tree, return *the postorder traversal of its nodes' values*.
+
+*   Thoughts:
+
+    *   
+
+*   Solution
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.result = []
+                
+            def traverse(self, root):
+                if not root:
+                    return
+                self.traverse(root.left)
+                self.traverse(root.right)
+                self.result.append(root.val)
+                
+            def postorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
+                self.traverse(root)
+                return self.result
+            
+        ```
+
+    *   
+
+### 222. Count Complete Tree Nodes
+
+*   ![image-20220706204252768](coding_review_v1.0.assets/image-20220706204252768.png)
+
+*   Thoughts:
+
+*   Solution
+
+    *   ```python
+        from collections import deque
+        class Solution:
+            # BFS
+            def countNodes(self, root: Optional[TreeNode]) -> int:
+                if not root:
+                    return 0
+                queue = deque()
+                count = 0
+                queue.append(root)
+                while queue:
+                    size = len(queue)
+                    for i in range(size):
+                        cur = queue.pop()
+                        count += 1
+                        if cur.left:
+                            queue.append(cur.left)
+                        if cur.right:
+                            queue.append(cur.right)
+                return count
+                
+        ```
+
+    *   /// have a math method
+
+### 236. Lowest Common Ancestor of a Binary Tree
+
+*   ![image-20220706205236908](coding_review_v1.0.assets/image-20220706205236908.png)
+
+*   Thoughts:
+
+    *   All `Node.val` are **unique**.
+    *   thought about dp. for each node we already finish the jobs on left and right.
+
+*   Solution
+
+    *   My way
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.father = None
+                
+            def traverse(self, root, p, q):
+                if not root:
+                    return False, False
+                left_has_p, left_has_q = self.traverse(root.left, p, q)
+                right_has_p, right_has_q = self.traverse(root.right, p, q)
+                has_p = has_q = False
+                if left_has_p or right_has_p or root.val == p.val:
+                    has_p = True
+                if left_has_q or right_has_q or root.val == q.val:
+                    has_q = True
+                if has_p and has_q and self.father == None:
+                    self.father = root
+                return has_p, has_q
+                
+            def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+                self.traverse(root, p, q)
+                return self.father
+                
+        ```
+
+    *   others
+
+    *   ```python
+        class Solution:
+            def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+                if not root:
+                    return None
+                if root == p or root == q:
+                    return root
+                left = self.lowestCommonAncestor(root.left, p, q)
+                right = self.lowestCommonAncestor(root.right, p, q)
+                if left and right:
+                    return root
+                else:
+                    return left if right == None else right
+                
+        ```
+
+    *   
+
+### 297. 
+
+*   
+*   Thoughts:
+*   Solution
+
+### 341. 
+
+*   
+*   Thoughts:
+*   Solution
+
+### 501. 
+
+*   
+*   Thoughts:
+*   Solution
+
+### 559. 
+
+*   
+*   Thoughts:
+*   Solution
+
+### 589. 
+
+*   
+*   Thoughts:
+*   Solution
+
+### 590. 
+
+*   
+*   Thoughts:
+*   Solution
+
+### 652. 
+
+*   
+*   Thoughts:
+*   Solution
+
+### 965. 
+
+*   
+*   Thoughts:
+*   Solution
+
+
+
 ## Binary Search Tree
+
+*   
+*   Thoughts:
+*   Solution
 
 ## Graph
 
