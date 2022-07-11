@@ -2344,35 +2344,211 @@
 
     *   
 
-### 297. 
+### 297. Serialize and Deserialize Binary Tree
 
 *   
+*   Thoughts: Traversal
+*   Solution
+
+    *   +++DFS
+
+    *   ```python
+        class Codec:
+            def serialize_helper(self, root, json):
+                if not root:
+                    json.append('#')
+                    return
+                # reverse the preorder traversal
+                self.serialize_helper(root.right, json)
+                self.serialize_helper(root.left, json)
+                json.append(str(root.val))
+        
+            def serialize(self, root):
+                """Encodes a tree to a single string.
+                
+                :type root: TreeNode
+                :rtype: str
+                """
+                json = []
+                self.serialize_helper(root, json)
+                return ",".join(json)
+                
+            def deserialize_helper(self, json):
+                # wont get empty
+                cur_val = json.pop()
+                if cur_val == '#':
+                    return None
+                root = TreeNode(int(cur_val))
+                root.left = self.deserialize_helper(json)
+                root.right = self.deserialize_helper(json)
+                return root
+        
+            def deserialize(self, data):
+                """Decodes your encoded data to tree.
+                
+                :type data: str
+                :rtype: TreeNode
+                """
+                json = data.split(',')
+                return self.deserialize_helper(json)
+        
+        # Your Codec object will be instantiated and called as such:
+        # ser = Codec()
+        # deser = Codec()
+        # ans = deser.deserialize(ser.serialize(root))
+        ```
+
+    *   
+
+    *   /// BFS
+
+
+### 341. Flatten Nested List Iterator
+
+*   ![image-20220708144734775](coding_review_v1.0.assets/image-20220708144734775.png)
+*   Thoughts:
+
+    *   +++ add a dummy head for all (sub) list, turn the list to a poly tree
+
+*   Solution
+
+    *   ```python
+        class NestedIterator:
+            def __init__(self, nestedList: [NestedInteger]):
+                self.nested_list = []
+                # dummy head
+                for sub_list in nestedList:
+                    self.build_helper(sub_list)
+                self.cur_index = -1
+                self.size = len(self.nested_list)
+            
+            def build_helper(self, nestedList: [NestedInteger]):
+                if nestedList.isInteger():
+                    self.nested_list.append(nestedList.getInteger())
+                for sub_list in nestedList.getList():
+                    self.build_helper(sub_list)
+            
+            def next(self) -> int:
+                if self.hasNext():
+                    self.cur_index += 1
+                    return self.nested_list[self.cur_index]
+                return -1
+            
+            def hasNext(self) -> bool:
+                if self.cur_index + 1 < self.size:
+                    return True
+                return False
+        
+        # Your NestedIterator object will be instantiated and called as such:
+        # i, v = NestedIterator(nestedList), []
+        # while i.hasNext(): v.append(i.next())
+        ```
+
+    *   
+
+
+### /// 501. Find Mode in Binary Search Tree
+
+*   ![image-20220708172008787](coding_review_v1.0.assets/image-20220708172008787.png)
+*   Thoughts:
+
+    *   **Follow up:** Could you do that without using any extra space? (Assume that the implicit stack space incurred due to recursion does not count).
+
+*   Solution
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.max_count = 0
+                self.cur_count = 0
+                self.pre = None
+                self.result = []
+                
+            def traverse(self, root):
+                if not root:
+                    return
+                self.traverse(root.left)
+                # inorder
+                if self.pre and self.pre.val == root.val:
+                    self.cur_count += 1
+                else:
+                    self.cur_count = 1
+                if self.cur_count == self.max_count:
+                    self.result.append(root.val)
+                elif self.cur_count > self.max_count:
+                    self.result.clear()
+                    self.result.append(root.val)
+                    self.max_count = self.cur_count
+                self.pre = root
+                self.traverse(root.right)
+                
+            def findMode(self, root: Optional[TreeNode]) -> List[int]:
+                self.traverse(root)
+                return self.result
+                
+        ```
+
+    *   
+
+
+### 559. Maximum Depth of N-ary Tree
+
+*   ![image-20220708173611822](coding_review_v1.0.assets/image-20220708173611822.png)
+*   Thoughts:
+
+    *   Dfs or bfs, I prefer bfs here cause it can stop earlier 
+
+*   Solution
+
+    *   ```python
+        from collections import deque
+        class Solution:
+            def maxDepth(self, root: 'Node') -> int:
+                if not root:
+                    return 0
+                queue = deque()
+                queue.append(root)
+                depth = 0
+                while queue:
+                    size = len(queue)
+                    for i in range(size):
+                        cur = queue.popleft()
+                        for child in cur.children:
+                            queue.append(child)
+                    depth += 1 
+                return depth
+                
+        ```
+
+    *   
+
+
+### 589. N-ary Tree Preorder Traversal
+
+*   ![image-20220708182948262](coding_review_v1.0.assets/image-20220708182948262.png)
 *   Thoughts:
 *   Solution
 
-### 341. 
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.result = []
+                
+            def traverse(self, root):
+                self.result.append(root.val)
+                for child in root.children:
+                    self.traverse(child)
+            
+            def preorder(self, root: 'Node') -> List[int]:
+                if not root:
+                    return []
+                self.traverse(root)
+                return self.result
+                
+        ```
 
-*   
-*   Thoughts:
-*   Solution
+    *   
 
-### 501. 
-
-*   
-*   Thoughts:
-*   Solution
-
-### 559. 
-
-*   
-*   Thoughts:
-*   Solution
-
-### 589. 
-
-*   
-*   Thoughts:
-*   Solution
 
 ### 590. 
 
@@ -2380,27 +2556,245 @@
 *   Thoughts:
 *   Solution
 
-### 652. 
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.result = []
+                
+            def traverse(self, root):
+                for child in root.children:
+                    self.traverse(child)
+                self.result.append(root.val)
+            
+            def postorder(self, root: 'Node') -> List[int]:
+                if not root:
+                    return []
+                self.traverse(root)
+                return self.result
+                
+        ```
 
-*   
+    *   
+
+
+### 652. Find Duplicate Subtrees
+
+*   ![image-20220708184751554](coding_review_v1.0.assets/image-20220708184751554.png)
 *   Thoughts:
 *   Solution
 
-### 965. 
+    *   ```python
+        from collections import defaultdict
+        class Solution:
+            def __init__(self):
+                self.hashmap = defaultdict(list)
+                
+            def traverse(self, root):
+                if not root:
+                    return "#"
+                sequence = "%s,%s,%s" % (str(root.val), self.traverse(root.left), self.traverse(root.right))
+                self.hashmap[sequence].append(root)
+                return sequence
+            
+            def findDuplicateSubtrees(self, root: Optional[TreeNode]) -> List[Optional[TreeNode]]:
+                self.traverse(root)
+                return [self.hashmap[sequence][0] for sequence in self.hashmap if len(self.hashmap[sequence]) > 1]
+                
+        ```
 
-*   
+    *   
+
+
+### 965. Univalued Binary Tree
+
+*   ![image-20220708190756322](coding_review_v1.0.assets/image-20220708190756322.png)
 *   Thoughts:
-*   Solution
+*   Solution:
+
+    *   ```python
+        from collections import deque
+        class Solution:
+            def isUnivalTree(self, root: Optional[TreeNode]) -> bool:
+                uni_val = root.val
+                queue = deque()
+                queue.append(root)
+                while queue:
+                    size = len(queue)
+                    for i in range(size):
+                        cur = queue.popleft()
+                        if cur.val != uni_val:
+                            return False
+                        if cur.left:
+                            queue.append(cur.left)
+                        if cur.right:
+                            queue.append(cur.right)
+                return True
+                
+        ```
+
+    *   
+
 
 
 
 ## Binary Search Tree
 
+### !!! 95. Unique Binary Search Trees II
+
+*   ![image-20220710184605914](coding_review_v1.0.assets/image-20220710184605914.png)
+
+*   Thoughts:
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.result = []
+            
+            def traverse(self, start, end):
+                if start > end:
+                    return [None]
+                sub_tree = []
+                for root_val in range(start, end + 1):
+                    left_trees = self.traverse(start, root_val - 1)
+                    right_trees = self.traverse(root_val + 1, end)
+                    for left in left_trees:
+                        for right in right_trees:
+                            root = TreeNode(root_val)
+                            root.left = left
+                            root.right = right
+                            sub_tree.append(root)
+                return sub_tree
+                
+            def generateTrees(self, n: int) -> List[Optional[TreeNode]]:
+                return self.traverse(1, n)
+                
+        ```
+
+    *   
+
+### !!! 96. Unique Binary Search Trees
+
+*   ![image-20220710231342449](coding_review_v1.0.assets/image-20220710231342449.png)
+
+*   Thoughts:
+
+    *   this is a dp question. state is \# of nodes, selection is the \# of left and right nodes. Base case is 0 and 1
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def numTrees(self, n: int) -> int:
+                dp = [0] * (n + 1)
+                dp[0] = 1
+                dp[1] = 1
+                for num in range(2, n + 1):
+                    for left_num in range(num):
+                        right_num = num - 1 - left_num
+                        dp[num] += dp[left_num] * dp[right_num]
+                return dp[n]
+             
+        ```
+
+    *   
+
+### !!! 98. Validate Binary Search Tree
+
+*   ![image-20220710232156537](coding_review_v1.0.assets/image-20220710232156537.png)
+
+*   Thoughts:
+
+    *   the left_max and right_min
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def traverse(self, root, left_max, right_min):
+                if not root:
+                    return True
+                if (left_max and left_max.val >= root.val) or (right_min and root.val >= right_min.val):
+                    return False
+                return self.traverse(root.left, left_max, root) and self.traverse(root.right, root, right_min)
+                
+            def isValidBST(self, root: Optional[TreeNode]) -> bool:
+                return self.traverse(root, None, None)
+                
+        ```
+
+    *   
+
+### 450. 
+
 *   
 *   Thoughts:
-*   Solution
+*   Solution:
+
+### 700. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+### 701. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+### 230. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+### 538. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+### 1038. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+### 501. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+### 503. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+### 783. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+### 1373. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+
 
 ## Graph
+
+*   
+*   Thoughts:
+*   Solution:
+
+
 
 
 
