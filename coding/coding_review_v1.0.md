@@ -2726,65 +2726,290 @@
 
     *   
 
-### 450. 
+### !!! 450. Delete Node in a BST
+
+*   ![image-20220711121012491](coding_review_v1.0.assets/image-20220711121012491.png)
+
+*   Thoughts:
+
+    *   if node is the leaf node, delete it
+    *   if node has one child, replace it.
+    *   Otherwise, we need to find the right_min or left_max
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def find_right_min(self, root):
+                while root.left:
+                    root = root.left
+                return root
+                
+            def deleteNode(self, root: Optional[TreeNode], key: int) -> Optional[TreeNode]:
+                if not root:
+                    return None
+                if root.val < key:
+                    # !!!
+                    root.right = self.deleteNode(root.right, key)
+                elif root.val > key:
+                    # !!!
+                    root.left = self.deleteNode(root.left, key)
+                elif root.val == key:
+                    if not root.left:
+                        return root.right
+                    if not root.right:
+                        return root.left
+                    right_min = self.find_right_min(root.right)
+                    # !!!
+                    root.right = self.deleteNode(root.right, right_min.val)
+                    right_min.left = root.left
+                    right_min.right = root.right
+                    root = right_min
+                return root
+                
+        ```
+
+    *   
+
+### 700. Search in a Binary Search Tree
 
 *   
+
+*   Thoughts:
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def searchBST(self, root: Optional[TreeNode], val: int) -> Optional[TreeNode]:
+                if not root:
+                    return None
+                if root.val == val:
+                    return root
+                elif root.val < val:
+                    return self.searchBST(root.right, val)
+                elif root.val > val:
+                    return self.searchBST(root.left, val)
+           
+        ```
+
+    *   
+
+### 701. Insert into a Binary Search Tree
+
+*   ![image-20220711124034235](coding_review_v1.0.assets/image-20220711124034235.png)
+
+*   Thoughts:
+
+    *   All the values `Node.val` are **unique**.
+    *   There are two ways:
+        *   insert at the end, and tickle up
+        *   find the right position and insert it
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def insertIntoBST(self, root: Optional[TreeNode], val: int) -> Optional[TreeNode]:
+                if not root:
+                    return TreeNode(val)
+                if root.val < val:
+                    root.right = self.insertIntoBST(root.right, val)
+                elif root.val > val:
+                    root.left = self.insertIntoBST(root.left, val)
+                return root
+                
+        ```
+
+    *   
+
+### 230. Kth Smallest Element in a BST
+
+*   ![image-20220711140947813](coding_review_v1.0.assets/image-20220711140947813.png)
+
+*   Thoughts:
+
+    *   The inorder traversal of BST is a ascending sequence of all values
+    *   **Follow up:** If the BST is modified often (i.e., we can do insert and delete operations) and you need to find the kth smallest frequently, how would you optimize?
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.count = 0
+                self.val = 0
+            
+            def traverse(self, root, k):
+                if self.count == k:
+                    return
+                if not root:
+                    return
+                self.traverse(root.left, k)
+                self.count += 1
+                if self.count == k:
+                    self.val = root.val
+                    return
+                self.traverse(root.right, k)
+                
+            def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:
+                self.traverse(root, k)
+                return self.val
+                
+        ```
+
+    *   
+
+### 538. Convert BST to Greater Tree
+
+*   ![image-20220711142943363](coding_review_v1.0.assets/image-20220711142943363.png)
+
+*   Thoughts:
+
+    *   The inorder traversal of BST is a ascending sequence of all values
+    *   we can reverse it.
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.pre_sum = 0
+                
+            def traverse(self, root):
+                if not root:
+                    return
+                self.traverse(root.right)
+                root.val += self.pre_sum
+                self.pre_sum = root.val
+                self.traverse(root.left)
+            
+            def convertBST(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+                self.traverse(root)
+                return root
+                
+        ```
+
+    *   
+
+### 1038. Binary Search Tree to Greater Sum Tree
+
+*   Same as 538
 *   Thoughts:
 *   Solution:
 
-### 700. 
+### /// 501. Find Mode in Binary Search Tree
 
-*   
+*   Done 
 *   Thoughts:
 *   Solution:
 
-### 701. 
+### !!! 503. Next Greater Element II
 
-*   
+*   ![image-20220711144532720](coding_review_v1.0.assets/image-20220711144532720.png)
+
 *   Thoughts:
+
+    *   if previous element is bigger than cur one, we won't use the cur one
+    *   !!! circular integer array
+
 *   Solution:
 
-### 230. 
+    *   ```
+        class Solution:
+            def nextGreaterElements(self, nums: List[int]) -> List[int]:
+                stack = []
+                size = len(nums)
+                result = [-1] * (size)
+                for i in range(2 * size - 1, -1, -1):
+                    while stack and stack[-1] <= nums[i % size]:
+                        stack.pop()
+                    if stack:
+                        result[i % size] = stack[-1]
+                    stack.append(nums[i % size])
+                return result
+            
+        ```
+
+    *   
+
+### 783. Minimum Distance Between BST Nodes
 
 *   
+
 *   Thoughts:
+
 *   Solution:
 
-### 538. 
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.diff = 100000
+                self.pre = None
+            
+            def traverse(self, root):
+                if not root:
+                    return
+                # if self.diff == 1:
+                #     return
+                self.traverse(root.left)
+                # inorder
+                if self.pre:
+                    self.diff = min(self.diff, root.val - self.pre.val)
+                self.pre = root
+                self.traverse(root.right)
+                
+            def minDiffInBST(self, root: Optional[TreeNode]) -> int:
+                self.traverse(root)
+                return self.diff
+                
+        ```
 
-*   
+    *   
+
+### !!! 1373. Maximum Sum BST in Binary Tree
+
+*   ![image-20220711153540232](coding_review_v1.0.assets/image-20220711153540232.png)
+
 *   Thoughts:
+
+    *   Postorder traverse
+
 *   Solution:
 
-### 1038. 
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.result = 0
+                
+            def traverse(self, root) -> bool:
+                valid = True
+                if not root:
+                    return 0, valid, None, None
+                left_sum, left_valid, left_max, left_min = self.traverse(root.left)
+                right_sum, right_valid, right_max, right_min = self.traverse(root.right)
+                
+                if (left_max and left_max.val >= root.val) or (right_min and right_min.val <= root.val):
+                    valid = False
+                else:
+                    valid = left_valid and right_valid
+                    
+                if not valid:
+                    return 0, valid, None, None
+                else:
+                    cur_sum = left_sum + root.val + right_sum
+                    self.result = max(self.result, cur_sum)
+                    min_node = left_min if left_min else root
+                    max_node = right_max if right_max else root
+                    return cur_sum, valid, max_node, min_node
+                
+            def maxSumBST(self, root: Optional[TreeNode]) -> int:
+                self.traverse(root)
+                return self.result
+                
+        ```
 
-*   
-*   Thoughts:
-*   Solution:
-
-### 501. 
-
-*   
-*   Thoughts:
-*   Solution:
-
-### 503. 
-
-*   
-*   Thoughts:
-*   Solution:
-
-### 783. 
-
-*   
-*   Thoughts:
-*   Solution:
-
-### 1373. 
-
-*   
-*   Thoughts:
-*   Solution:
+    *   
 
 
 
