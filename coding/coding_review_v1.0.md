@@ -3015,17 +3015,219 @@
 
 ## Graph
 
+### Traversal
+
+#### 797. All Paths From Source to Target
+
+*   ![image-20220713215305545](coding_review_v1.0.assets/image-20220713215305545.png)
+
+*   Thoughts:
+
+    *   acyclic, so dont need visited array
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.result = []
+                self.size = -1
+                
+            def traverse(self, graph: List[List[int]], key: int, path: List[int]):
+                path.append(key)
+                for neighbor in graph[key]:
+                    self.traverse(graph, neighbor, path)
+                if key == self.size - 1:
+                    self.result.append(path[:])
+                path.pop()
+                
+            def allPathsSourceTarget(self, graph: List[List[int]]) -> List[List[int]]:
+                self.size = (len(graph))
+                self.traverse(graph, 0, [])
+                return self.result
+                
+        ```
+
+    *   
+
+### Bipartite graph
+
+#### 785. Is Graph Bipartite?
+
+*   ![image-20220713215951363](coding_review_v1.0.assets/image-20220713215951363.png)
+
+*   Thoughts:
+
+    *   for each edge, the two node should belongs to different sets, we can traverse the graph and label them.
+    *   if we can finish it, the graph is bipartite, otherwise (visit some node labeled differently) false.
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.visited = []
+                self.label = []
+                self.bipartite = True
+            
+            def traverse(self, graph, key):
+                if not self.bipartite:
+                    return
+                self.visited[key] = True
+                for neighbor in graph[key]:
+                    if not self.visited[neighbor]:
+                        self.label[neighbor] = not self.label[key]
+                        self.traverse(graph, neighbor)
+                    elif self.visited[neighbor]:
+                        if self.label[neighbor] == self.label[key]:
+                            self.bipartite = False
+                
+            def isBipartite(self, graph: List[List[int]]) -> bool:
+                size = len(graph)
+                self.label = [False] * size
+                self.visited = [False] * size
+                for key in range(size):
+                    self.traverse(graph, key)
+                return self.bipartite
+                
+        ```
+
+    *   
+
+#### 886. Possible Bipartition
+
+*   ![image-20220714224656638](coding_review_v1.0.assets/image-20220714224656638.png)
+
+*   Thoughts:
+
+    *   This is a graph, the nodes of an edge should be divided into different group.
+    *   Is Graph Bipartite?
+    *   need a visited array avoiding dead loop
+    *   give each node a label. Before labeling, if the node has been visited and has a different label, return false.
+    *   Build undirected graph
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.visited = []
+                self.label = []
+                self.bipartite = True
+            
+            def traverse(self, graph, key):
+                if not self.bipartite:
+                    return
+                self.visited[key] = True
+                for neighbor in graph[key]:
+                    if not self.visited[neighbor]:
+                        self.label[neighbor] = not self.label[key]
+                        self.traverse(graph, neighbor)
+                    elif self.visited[neighbor]:
+                        if self.label[key] == self.label[neighbor]:
+                            self.bipartite = False
+                
+            def possibleBipartition(self, n: int, dislikes: List[List[int]]) -> bool:
+                graph = [[] for i in range(n + 1)]
+                for start, end in dislikes:
+                    graph[start].append(end)
+                    graph[end].append(start)
+                self.visited = [False] * (n + 1)
+                self.label = [False] *(n + 1)
+                for key in range(1, n + 1):
+                    self.traverse(graph, key)
+                return self.bipartite
+                
+
+
+
+### Cycle Detection
+
+#### 207. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+#### 210. 
+
 *   
 *   Thoughts:
 *   Solution:
 
 
 
+### Union Find
+
+#### 130. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+#### 990. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+#### 765. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+### Minimum spanning tree
+
+#### 261. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+#### 1135. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+#### 1584. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+
+
+### Shortest Path
+
+#### 743. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+#### 1514. 
+
+*   
+*   Thoughts:
+*   Solution:
+
+#### 1631. 
+
+*   
+*   Thoughts:
+*   Solution:
+
 
 
 # Search
 
 ## Backtrack
+
+*   
+*   Thoughts:
+*   Solution:
 
 ## DFS
 

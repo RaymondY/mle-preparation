@@ -74,17 +74,65 @@
 
 # Graph Theory
 
+## Traversal
+
+*   For undirected graph
+
+    *   ```python
+        def traverse(self, graph, key):
+                if not meet condition:
+                    return
+                self.visited[key] = True
+                for neighbor in graph[key]:
+                    if not self.visited[neighbor]:
+                        self.traverse(graph, neighbor)
+             
+        ```
+
+*   For directed graph
+
+    *   ```python
+        def traverse(self, graph, key):
+                if self.visited[neighbor] or not meet condition:
+                    return
+                self.visited[key] = True
+                for neighbor in graph[key]:
+                    self.traverse(graph, neighbor)
+                    
+        ```
+
+    *   
+
 
 
 # Method of Exhaustion
 
-## DFS
+## DFS / Backtrack
+
+>   !!! **focus on "nodes"or focus on "branches"**
 
 *   At each node, consider:
 
     1.   Path: the choices made
     2.   Selection list: avaibale choices
     3.   End condition
+
+*   DFS: record NODE
+
+*   ```python
+    result = []
+    def dfs(path, selection_list):
+        if end condition:
+            result.append(path)
+            return
+        add node
+        for selection in selection_list:
+           	dfs(cur_path, cur_selection_list)
+    
+        remove node
+    ```
+
+*   Backtrack: record EDGE
 
 *   ```python
     result = []
