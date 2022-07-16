@@ -3143,26 +3143,110 @@
 
 ### Cycle Detection
 
-#### 207. 
+#### 207. Course Schedule
 
-*   
+*   ![image-20220715120302278](coding_review_v1.0.assets/image-20220715120302278.png)
+
 *   Thoughts:
+
+    *   build a directed graph according to prerequisites
+    *   detect cycle. Backtrack: on_path, visited, has_cycle
+
 *   Solution:
 
-#### 210. 
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.has_cycle = False
+                self.on_path = []
+                self.visited = []
+            
+            def backtrack(self, graph, key):
+                if self.on_path[key]:
+                    self.has_cycle = True
+                if self.visited[key] or self.has_cycle:
+                    return
+                self.visited[key] = True
+                self.on_path[key] = True
+                for neighbor in graph[key]:
+                    self.backtrack(graph, neighbor)
+                self.on_path[key] = False
+                
+            def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
+                graph = [[] for index in range(numCourses)]
+                for end, start in prerequisites:
+                    graph[start].append(end)
+                self.on_path = [False] * numCourses
+                self.visited = [False] * numCourses
+                for key in range(numCourses):
+                    self.backtrack(graph, key)
+                return not self.has_cycle
+                
+        ```
 
-*   
+    *   
+
+#### 210. Course Schedule II
+
+*   ![image-20220715123538936](coding_review_v1.0.assets/image-20220715123538936.png)
+
 *   Thoughts:
+
+    *   !!! **we must add the node to result in the postorder location, cause the postorder indicates that once we can finish all later course. then reverse the postorder traversal.**
+
 *   Solution:
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.has_cycle = False
+                self.on_path = []
+                self.visited = []
+                self.result = []
+            
+            def backtrack(self, graph, key):
+                if self.on_path[key]:
+                    self.has_cycle = True
+                if self.visited[key] or self.has_cycle:
+                    return
+                self.visited[key] = True
+                self.on_path[key] = True
+                for neighbor in graph[key]:
+                    self.backtrack(graph, neighbor)
+                self.on_path[key] = False
+                self.result.append(key)
+                
+            def findOrder(self, numCourses: int, prerequisites: List[List[int]]) -> List[int]:
+                graph = [[] for index in range(numCourses)]
+                for end, start in prerequisites:
+                    graph[start].append(end)
+                self.on_path = [False] * numCourses
+                self.visited = [False] * numCourses
+                for key in range(numCourses):
+                    self.backtrack(graph, key)
+                self.result.reverse()
+                return self.result if not self.has_cycle else []
+                
+        ```
+
+    *   /// BFS
 
 
 
 ### Union Find
 
-#### 130. 
+#### 130. Surrounded Regions
 
-*   
+*   ![image-20220715143724850](coding_review_v1.0.assets/image-20220715143724850.png)
 *   Thoughts:
+    *   Flood fill algorithm.
+    *   apply dfs, for each node
+    *   Two ways:
+        *   we can flood islands to a another symbol, and find those island containing boundary
+            *   This one is okay.
+        *   Or, we can turn the flooded islands back if we meet the boundary. (backtrack)
+            *   This one is not good, for example, flooad a tree, once we didn't touch the boundary for the left  sub_tree, but actually the right sub_tree touch the boundary, we cannot tell the done left one to turn it back.
+    *   Or union find
 *   Solution:
 
 #### 990. 
