@@ -132,7 +132,7 @@
         remove node
     ```
 
-*   Backtrack: record EDGE
+*   Backtrack: record EDGE (backtrack focus on edge, for each node, we check all possible edges (next node).)
 
 *   ```python
     result = []
@@ -153,7 +153,7 @@
 
 *   Different perspectives lead to different solutions. (leetcode 698)
 
-*   A set of problems (permutation and combination):
+*   **(all note in this bullet point is my past thought, actually, the only thing we need to figure out in the backtrack or dfs, is the base case, selections (like dp). And no matter  fun parameter `start` or visited array, is to avoid repeat visit. all trick is to avoid repeat visit smartly. ) **past thought: A set of problems (permutation and combination):
 
     *   Type
 

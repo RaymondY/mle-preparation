@@ -3238,7 +3238,9 @@
 #### 130. Surrounded Regions
 
 *   ![image-20220715143724850](coding_review_v1.0.assets/image-20220715143724850.png)
+
 *   Thoughts:
+
     *   Flood fill algorithm.
     *   apply dfs, for each node
     *   Two ways:
@@ -3247,57 +3249,249 @@
         *   Or, we can turn the flooded islands back if we meet the boundary. (backtrack)
             *   This one is not good, for example, flooad a tree, once we didn't touch the boundary for the left  sub_tree, but actually the right sub_tree touch the boundary, we cannot tell the done left one to turn it back.
     *   Or union find
+
 *   Solution:
 
-#### 990. 
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.row_size = -1
+                self.col_size = -1
+                
+            def flood_fill(self, board, row, col, symbol):
+                if (not 0 <= row < self.row_size) or (not 0 <= col < self.col_size):
+                    return
+                if board[row][col] == "X" or board[row][col] == "#":
+                    return
+                # if board[row][col] == "O"
+                board[row][col] = symbol
+                self.flood_fill(board, row - 1, col, symbol)
+                self.flood_fill(board, row + 1, col, symbol)
+                self.flood_fill(board, row, col - 1, symbol)
+                self.flood_fill(board, row, col + 1, symbol)
+                
+            def solve(self, board: List[List[str]]) -> None:
+                """
+                Do not return anything, modify board in-place instead.
+                """
+                self.row_size = len(board)
+                self.col_size = len(board[0])
+                # mark the island next to the boundary
+                for col in range(self.col_size):
+                    self.flood_fill(board, 0, col, "#")
+                    self.flood_fill(board, self.row_size - 1, col, "#")
+                for row in range(1, self.row_size - 1):
+                    self.flood_fill(board, row, 0, "#")
+                    self.flood_fill(board, row, self.col_size - 1, "#")
+                for row in range(1, self.row_size - 1):
+                    for col in range(1, self.col_size - 1):
+                        self.flood_fill(board, row, col, "X")
+                for row in range(self.row_size):
+                    for col in range(self.col_size):
+                        if board[row][col] == "#":
+                            board[row][col] = "O"
+                            
+        ```
+
+    *   
+
+#### 990. Satisfiability of Equality Equations
+
+*   ![image-20220716213826140](coding_review_v1.0.assets/image-20220716213826140.png)
+
+*   Thoughts:
+
+    *   this is a undirected graph, for each pair of letters, there are two equations indicated their relationship. we need to find whether there are conflicts in the graph.
+    *   I d like to build a graph according to those "==" equations, and find conflicts according those "!=" equations
+    *   if we have n nodes, 
+    *   union find. Space O(n), Ops time O(\log n)
+    *   For this problem, we have at most 26 nodes
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                # self.count = 26
+                # the parents are themselves
+                self.parent = [i for i in range(26)]
+                self.size = [1 for i in range(26)]
+            
+            def find(self, x: int) -> int:
+                # find the parent and compress tree
+                while self.parent[x] != x:
+                    self.parent[x] = self.parent[self.parent[x]]
+                    x = self.parent[x]
+                return x
+            
+            # O(1)
+            def union(self, p: int, q: int):
+                # connect p and q (index)
+                parent_p = self.find(p)
+                parent_q = self.find(q)
+                if parent_p == parent_q:
+                    return
+                
+                if self.size[p] > self.size[q]:
+                    self.parent[parent_q] = parent_p
+                    self.size[parent_q] += self.size[parent_p]
+                else:
+                    self.parent[parent_p] = parent_q
+                    self.size[parent_p] += self.size[parent_q]
+                # self.count -= 1
+            
+            # O(1)
+            def connected(self, p: int, q: int) -> bool:
+                # whether two nodes are connected
+                parent_p = self.find(p)
+                parent_q = self.find(q)
+                return parent_p == parent_q
+                
+            def equationsPossible(self, equations: List[str]) -> bool:
+                # first cover those "==" equations
+                base = ord("a")
+                for equation in equations:
+                    if equation[1] == "=":
+                        # +++
+                        self.union(ord(equation[0]) - base, ord(equation[3]) - base)
+                for equation in equations:
+                    if equation[1] == "!":  
+                        if self.connected(ord(equation[0]) - base, ord(equation[3]) - base):
+                            return False
+                return True
+                
+        ```
+
+    *   
+
+#### 765. ///
 
 *   
 *   Thoughts:
 *   Solution:
 
-#### 765. 
+### Minimum spanning tree (Prim & Kruskal)
+
+#### 261. Vip
 
 *   
 *   Thoughts:
 *   Solution:
 
-### Minimum spanning tree
-
-#### 261. 
+#### 1135. vip
 
 *   
 *   Thoughts:
 *   Solution:
 
-#### 1135. 
+#### ///1584. Min Cost to Connect All Points
 
-*   
+*   ![image-20220717152729672](coding_review_v1.0.assets/image-20220717152729672.png)
+
 *   Thoughts:
+
+    *   Prim 
+
 *   Solution:
 
-#### 1584. 
+    *   ```python
+        from queue import PriorityQueue
+        class Solution:
+            def __init__(self):
+                self.size = 0
+                self.min_set = set()
+            
+            def add_edge(self, pq, graph, start):
+                for end in range(self.size):
+                    dis = graph[start][end]
+                    if end in self.min_set:
+                        continue
+                    pq.put([dis, start, end])
+                
+            def distance(self, start: List[int], end: List[int]) -> int:
+                return abs(start[0] - end[0]) + abs(start[1] - end[1])
+                
+            def minCostConnectPoints(self, points: List[List[int]]) -> int:
+                self.size = len(points)
+                # build graph maxtix
+                graph = [[0 for j in range(self.size)] for j in range(self.size)]
+                for i in range(self.size):
+                    for j in range(i + 1, self.size):
+                        dis = abs(points[i][0] - points[j][0]) + abs(points[i][1] - points[j][1])
+                        graph[i][j] = dis
+                        graph[j][i] = dis
+                
+                pq = PriorityQueue()
+                self.min_set.add(0)
+                self.add_edge(pq, graph, 0)
+                count = 1
+                min_cost = 0
+                while count < self.size:
+                    cur_edge, start, end = pq.get()
+                    if end in self.min_set:
+                        continue
+                    min_cost += cur_edge
+                    self.min_set.add(end)
+                    self.add_edge(pq, graph, end)
+                    count += 1
+                return min_cost
+                
+        ```
 
-*   
-*   Thoughts:
-*   Solution:
+    *   
 
 
 
 ### Shortest Path
 
-#### 743. 
+#### !!! 743. Network Delay Time
+
+*   ![image-20220717180018690](coding_review_v1.0.assets/image-20220717180018690.png)
+
+*   Thoughts:
+
+*   Solution:
+
+    *   This is not a traditional Dijkstra, we can visited one node multiple times, in other words, we visited all edges here. in the traditional one, visited array guarantees that we visit one node only one time, which makes it can not solve the graph with negative edge.
+
+    *   ```python
+        from queue import PriorityQueue
+        class Solution:
+            def networkDelayTime(self, times: List[List[int]], n: int, k: int) -> int:
+                # build the adjacency list
+                graph = [[] for i in range(n + 1)]
+                for start, end, cost in times:
+                    graph[start].append([cost, end])
+                
+                MAX_VAL = 100 * n + 1
+                distance = [MAX_VAL for i in range(n + 1)]
+                pq = PriorityQueue()
+                distance[k] = 0
+                pq.put([0, k])
+                while not pq.empty():
+                    dis_from_k, node = pq.get()
+                    if dis_from_k > distance[node]:
+                        continue
+                    for cost, neighbor in graph[node]:
+                        new_dis = dis_from_k + cost
+                        if new_dis < distance[neighbor]:
+                            distance[neighbor] = new_dis
+                            pq.put([new_dis, neighbor])
+                distance[0] = -1
+                result = max(distance)
+                return result if result != MAX_VAL else -1
+                
+        ```
+
+    *   
+
+#### ///1514. 
 
 *   
 *   Thoughts:
 *   Solution:
 
-#### 1514. 
-
-*   
-*   Thoughts:
-*   Solution:
-
-#### 1631. 
+#### ///1631. 
 
 *   
 *   Thoughts:
@@ -3309,11 +3503,485 @@
 
 ## Backtrack
 
+### 17. Letter Combinations of a Phone Number
+
+*   ![image-20220718120045687](coding_review_v1.0.assets/image-20220718120045687.png)
+
+*   Thoughts:
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.digits = ""
+                self.size = -1
+                self.result = []
+                self.dictionary = {"2": ["a", "b", "c"], "3": ["d", "e", "f"], "4": ["g", "h", "i"], "5": ["j", "k", "l"], "6": ["m", "n", "o"], "7": ["p", "q", "r", "s"], "8": ["t", "u", "v"], "9": ["w", "x", "y", "z"]}
+            
+            # backtrack focus on edge, for each node, we check all possible edges (next node).
+            def backtrack(self, key: int, letter_list: List[str]):
+                if key == self.size:
+                    self.result.append("".join(letter_list))
+                    return
+                for letter in self.dictionary[self.digits[key]]:
+                    letter_list.append(letter)
+                    self.backtrack(key + 1, letter_list)
+                    letter_list.pop()
+            
+            def letterCombinations(self, digits: str) -> List[str]:
+                self.size = len(digits)
+                if self.size == 0:
+                    return []
+                self.digits = digits
+                self.backtrack(0, [])
+                return self.result
+                
+        ```
+
+    *   
+
+### 22. Generate Parentheses
+
+*   Given `n` pairs of parentheses, write a function to *generate all combinations of well-formed parentheses*.
+
+*   Thoughts:
+
+    *   for current string, the \# of left parenthese always >= the \# of right parenthese.
+    *   backtrack, we have two selections, but when the cur_left = cur_right, we can only select "("
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.result = []
+                self.size = -1
+                
+            def backtrack(self, path: List[str], left: int, right: int):
+                if left + right == self.size * 2:
+                    self.result.append("".join(path))
+                    return
+                if left < self.size:
+                    path.append("(")
+                    self.backtrack(path, left + 1, right)
+                    path.pop()
+                if right < self.size and left > right:
+                    path.append(")")
+                    self.backtrack(path, left, right + 1)
+                    path.pop()
+                
+            def generateParenthesis(self, n: int) -> List[str]:
+                self.size = n
+                self.backtrack([], 0, 0)
+                return self.result
+                
+        ```
+
+    *   
+
+### 37. Sudoku Solver
+
+*   ![image-20220718145153197](coding_review_v1.0.assets/image-20220718145153197.png)
+
+    *   It is **guaranteed** that the input board has only one solution.
+
+*   Thoughts:
+
+    *   I can only come up with exhaustion, following the three rules.
+    *   Backtrack
+
+*   Solution:
+
+    *   ```python
+        import copy
+        class Solution:
+            def __init__(self):
+                # build global rules here (9 sets)
+                self.row_rule = [[True for j in range(9)] for i in range(9)]
+                self.col_rule = [[True for j in range(9)] for i in range(9)]
+                self.box_rule = [[True for j in range(9)] for i in range(9)]
+            
+            def return_box_index(self, row, col):
+                return (row // 3) * 3 + col // 3
+            
+            def return_row_col(self, index):
+                row = index // 9
+                col = index % 9
+                return row, col
+                
+            def backtrack(self, index, board) -> bool:
+                if index == 81:
+                    return True
+                
+                row, col = self.return_row_col(index)
+                
+                if board[row][col] != ".":
+                    return self.backtrack(index + 1, board)
+                for index in range(9):
+                    box_index = self.return_box_index(row, col)
+                    if self.row_rule[row][index] and self.col_rule[col][index] and self.box_rule[box_index][index]:
+                        self.row_rule[row][index] = False
+                        self.col_rule[col][index] = False
+                        self.box_rule[box_index][index] = False
+                        board[row][col] = str(index + 1)
+                        
+                        if self.backtrack(index + 1, board):
+                            return True
+                            
+                        self.row_rule[row][index] = True
+                        self.col_rule[col][index] = True
+                        self.box_rule[box_index][index] = True
+                        board[row][col] = "."
+        
+            def solveSudoku(self, board: List[List[str]]) -> None:
+                """
+                Do not return anything, modify board in-place instead.
+                """
+                for row in range(9):
+                    for col in range(9):
+                        val = board[row][col]
+                        if val == ".":
+                            continue
+                        index = int(val) - 1
+                        self.row_rule[row][index] = False
+                        self.col_rule[col][index] = False
+                        box_index = self.return_box_index(row, col)
+                        self.box_rule[box_index][index] = False
+                self.backtrack(0, board)
+                
+        ```
+
+    *   
+
+### 39. Combination Sum
+
+*   ![image-20220718165213350](coding_review_v1.0.assets/image-20220718165213350.png)
+
+*   Thoughts:
+
+    *   Combination -> exclude same elements with diff order
+        *   only select the element greater or equal to the last one.
+    *   Backtrack
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.result = []
+                self.target = -1
+                self.size = -1
+                
+            def backtrack(self, candidates: List[int], path: List[int], start_index: int):
+                if sum(path) == self.target:
+                    self.result.append(path[:])
+                    return
+                if sum(path) > self.target:
+                    return
+                for candidate_index in range(start_index, self.size):
+                    candidate = candidates[candidate_index]
+                    path.append(candidate)
+                    self.backtrack(candidates, path, candidate_index)
+                    path.pop()
+                
+            def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
+                self.target = target
+                self.size = len(candidates)
+                self.backtrack(candidates, [], 0)
+                return self.result
+                
+        ```
+
+    *   
+
+### 46. Permutations
+
+*   Given an array `nums` of distinct integers, return *all the possible permutations*. You can return the answer in **any order**.
+
+    *   All the integers of `nums` are **unique**.
+
+*   Thoughts:
+
+    *   the order matters. at each round of backtrack, all elements unvisited are candidates. and we record the visited array
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.result = []
+                
+            def backtrack(self, nums: List[int], path: List[int], visited: List[int]):
+                if len(path) == len(nums):
+                    self.result.append(path[:])
+                    return
+                for i in range(len(nums)):
+                    if visited[i]:
+                        continue
+                    visited[i] = True
+                    path.append(nums[i])
+                    self.backtrack(nums, path, visited)
+                    visited[i] = False
+                    path.pop()
+                
+            def permute(self, nums: List[int]) -> List[List[int]]:
+                self.backtrack(nums, [], [False] * len(nums))
+                return self.result
+            
+        ```
+
+    *   
+
+### 77. Combinations
+
+*   Given two integers `n` and `k`, return *all possible combinations of* `k` *numbers out of the range* `[1, n]`.
+
+*   Thoughts:
+
+    *   only use the greater elements.
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.result = []
+                
+            def backtrack(self, path: List[int], k: int, n: int, start: int):
+                if len(path) == k:
+                    self.result.append(path[:])
+                    return
+                for candidate in range(start, n + 1):
+                    path.append(candidate)
+                    self.backtrack(path, k, n, candidate + 1)
+                    path.pop()
+            
+            def combine(self, n: int, k: int) -> List[List[int]]:
+                self.backtrack([], k, n, 1)
+                return self.result
+                
+        ```
+
+    *   
+
+### 78. Subsets
+
+*   Given an integer array `nums` of **unique** elements, return *all possible subsets (the power set)*.
+
+    The solution set **must not** contain duplicate subsets. Return the solution in **any order**.
+
+*   Thoughts:
+
+    *   Backtrack, only select greater element
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.result = []
+                
+            def backtrack(self, nums, path, start_index):
+                self.result.append(path[:])
+                # +++ return automatically
+                for index in range(start_index, len(nums)):
+                    path.append(nums[index])
+                    self.backtrack(nums, path, index + 1)
+                    path.pop()
+            
+            def subsets(self, nums: List[int]) -> List[List[int]]:
+                self.backtrack(nums, [], 0)
+                return self.result
+                
+        ```
+
+    *   
+
+### 51. N-Queens
+
+*   
+
+*   Thoughts:
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.result = []
+            
+            def convert_to_board(self, track, n):
+                board = []
+                temp = ['.'] * n
+                for col in track:
+                    temp[col] = 'Q'
+                    board.append(''.join(temp))
+                    temp[col] = '.'
+                return board
+                
+            def is_valid(self, track, next_col):
+                # len(track) - 1 + 1
+                next_row = len(track)
+                for row, col in enumerate(track):
+                    # check this col
+                    # check top_left to down_right
+                    # check down_left to rop_right
+                    if col == next_col or abs(row - next_row) == abs(col - next_col):
+                        return False
+                return True
+        
+            def backtrack(self, track, n):
+                if len(track) == n:
+                    self.result.append(self.convert_to_board(track, n))
+                    return
+                for next_col in range(n):
+                    if self.is_valid(track, next_col):
+                        track.append(next_col)
+                        self.backtrack(track, n)
+                        track.pop()
+                
+            def solveNQueens(self, n: int) -> List[List[str]]:
+                self.backtrack([], n)
+                return self.result
+                
+        ```
+
+    *   
+
+### 104. Maximum Depth of Binary Tree
+
+*   Given the `root` of a binary tree, return *its maximum depth*.
+
+    A binary tree's **maximum depth** is the number of nodes along the longest path from the root node down to the farthest leaf node.
+
+*   Thoughts:
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.max_depth = -1
+            
+            def dfs(self, root, depth):
+                if not root:
+                    self.max_depth = max(self.max_depth, depth)
+                    return
+                # +1 is the cur node
+                self.dfs(root.left, depth + 1)
+                self.dfs(root.right, depth + 1)
+                
+            def maxDepth(self, root: Optional[TreeNode]) -> int:
+                self.dfs(root, 0)
+                return self.max_depth
+                
+        ```
+
+    *   
+
+### 494. Target Sum
+
+*   ![image-20220718204128285](coding_review_v1.0.assets/image-20220718204128285.png)
+
+*   Thoughts:
+
+    *   Traverse all elements, for each element, we have two selections (- or +)
+    *   !!! However, the original backtrack has overlapping, which leads us to dp
+
+*   Solution:
+
+    *   !!! Backtrack with pruning
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.hashmap = dict()
+                
+            def backtrack(self, nums, cur_index, remain):
+                if cur_index == len(nums):
+                    if remain == 0:
+                        return 1
+                    return 0
+                val = nums[cur_index]
+                key = str(cur_index) + ":" + str(remain)
+                if key in self.hashmap:
+                    return self.hashmap[key]
+                # +
+                op_add = self.backtrack(nums, cur_index + 1, remain - val)
+                # -
+                op_minus = self.backtrack(nums, cur_index + 1, remain + val)
+                count = op_add + op_minus
+                self.hashmap[key] = count
+                return count
+                
+            def findTargetSumWays(self, nums: List[int], target: int) -> int:
+                return self.backtrack(nums, 0, target)
+                
+        ```
+
+    *   
+
+### !!! 698. Partition to K Equal Sum Subsets
+
+*   Given an integer array `nums` and an integer `k`, return `true` if it is possible to divide this array into `k` non-empty subsets whose sums are all equal.
+
+*   Thoughts:
+
+    *   !!! need pruning
+    *   +++ use bitmap representing visited array
+    *   /// two perspectives
+
+*   Solution:
+
+    *   ```python
+        class Solution:
+            def __init__(self):
+                self.hashmap = dict()
+            # visited is the bitmap
+            def backtrack(self, nums, remain_basket, cur_basket_val, visited, start_index, target):
+                if remain_basket == 0:
+                    return True
+                if cur_basket_val == target:
+                    # start from the very beginning
+                    result = self.backtrack(nums, remain_basket - 1, 0, visited, 0, target)
+                    self.hashmap[visited] = result
+                    return result
+                
+                if visited in self.hashmap:
+                    return self.hashmap[visited]
+                
+                for index in range(start_index, len(nums)):
+                    pos = pow(10, index)
+                    if (visited // pos) % 10 == 1:
+                        continue
+                    if cur_basket_val + nums[index] > target:
+                        continue
+                    visited += pos
+                    if self.backtrack(nums, remain_basket, cur_basket_val + nums[index], visited, index + 1, target):
+                        return True
+                    visited -= pos
+                return False
+                
+            def canPartitionKSubsets(self, nums: List[int], k: int) -> bool:
+                sum_val = sum(nums)
+                if sum_val % k != 0:
+                    return False
+                target = sum_val // k
+                nums.sort(reverse=True)
+                return self.backtrack(nums, k, 0, 0, 0, target)
+                
+        ```
+
+    *   
+
+
+
+## DFS
+
 *   
 *   Thoughts:
 *   Solution:
-
-## DFS
 
 ## BFS
 
